@@ -1,1 +1,16 @@
 en:
+  form_mailer:
+    title: "You've got Forms!"
+    subject_template: "Here is a fun form"
+    text_body_template: |
+      This is a form. Forms are awesome. So aweseome.
+      Reply to: %{name} <%{email}>
+      Software: %{software}
+      Posts: %{posts}, Users: %{users}
+      
+      The stuff! %{form_data}
+
+
+
+
+

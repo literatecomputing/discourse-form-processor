@@ -1,4 +1,10 @@
-TODO_plugin_name:
-  plugin_name_enabled:
-    default: false
+form_processor:
+  form_processor_enabled:
+    default: true
     client: true
+  form_processor_field_allowlist:
+    client: false
+    default: "name|email|forum_url|software|users|posts"
+
+
+ # "software"=>"none", "users"=>"2", "posts"=>"44", "import_pw"=>"no", "import_pm"=>"no", "hosting_service"=>"lc", "message"=>"asdf", "controller"=>"forms_module/forms", "action"=>"create", "id"=>"1"}"

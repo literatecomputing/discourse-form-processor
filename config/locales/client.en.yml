@@ -3,7 +3,7 @@ en:
     admin:
       site_settings:
         categories:
-          TODO_plugin_name: "Plugin Name"
+          PLUGIN_NAME: "Discourse Form Processor"
   js:
-    discourse_plugin_name:
+    discourse_form_processor:
       placeholder: placeholder
