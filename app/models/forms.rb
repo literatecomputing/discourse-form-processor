@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ::FormsModule
   class Form < ActiveRecord::BasicObject
     def self.create(args)
