@@ -20,8 +20,6 @@ require_relative "lib/form_module/engine"
 #   post "/forms/submit/:id" => "forms#create"
 # end
 
-
 after_initialize do
   # Code which should run after Rails has finished booting
-
 end

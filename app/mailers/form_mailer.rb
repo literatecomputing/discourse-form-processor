@@ -5,6 +5,11 @@ class FormMailer < ActionMailer::Base
 
   def send_form(to_address, opts = {})
     puts "mailer got opts #{opts}--reply: #{opts[:email]}"
-    build_email(to_address, template: "form_mailer", custom_headers: "reply-to: #{opts[:email]}", **opts)
+    build_email(
+      to_address,
+      template: "form_mailer",
+      custom_headers: "reply-to: #{opts[:email]}",
+      **opts,
+    )
   end
 end
