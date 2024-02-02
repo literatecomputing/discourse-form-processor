@@ -1,6 +1,6 @@
 form_processor:
   form_processor_enabled:
-    default: true
+    default: false
     client: true
   form_processor_field_allowlist:
     client: false
