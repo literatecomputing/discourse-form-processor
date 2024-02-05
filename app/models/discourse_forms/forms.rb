@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module ::FormsModule
+module DiscourseForms
   class Form < ActiveRecord::Base
     def self.create(args)
       puts "Forms model Create! Got #{args}"

@@ -10,7 +10,7 @@
 
 enabled_site_setting :form_processor_enabled
 
-module ::FormsModule
+module ::DiscourseForms
   PLUGIN_NAME = "discourse-form-processor"
 end
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module ::FormsModule
+module DiscourseForms
   class FormsController < ::ApplicationController
     skip_before_action :check_xhr, :preload_json, :verify_authenticity_token
 

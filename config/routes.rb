@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-FormsModule::Engine.routes.draw do
+DiscourseForms::Engine.routes.draw do
   post "/submit/:id" => "forms#create"
   get "/submit/:id" => "forms#show"
   get "/submit" => "forms#index"
@@ -10,4 +10,4 @@ FormsModule::Engine.routes.draw do
   # define routes here
 end
 
-Discourse::Application.routes.draw { mount ::FormsModule::Engine, at: "/forms" }
+Discourse::Application.routes.draw { mount ::DiscourseForms::Engine, at: "/forms" }
