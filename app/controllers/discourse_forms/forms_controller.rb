@@ -17,33 +17,71 @@ module DiscourseForms
     end
 
     def create
-      # filtered = params.permit(:email, :name).transform_keys(&:to_sym)
-      filtered = params.permit(:email, :name)
-      fields = {}
-      SiteSetting
-        .form_processor_field_allowlist
-        .split("|")
-        .each { |field| fields[field.to_sym] = params[field] }
-      fields[:form_data] = params.to_s.gsub(",", ",\n")
-      puts "controller in a form! Things are really happening"
-      puts "params: #{params}"
-      puts "fields: #{fields}"
-      puts "going to redirect to #{params["success_url"]}" if params["success_url"]
-      form_data = params.to_s
-      puts "paramstring: #{form_data}"
-      puts "filtered: #{filtered}"
-      #byebug
-      #message = FormMailer.send_form(params['email'], {"email": "jay@pfaffman.com", "name": "Jay Pfaffman"}) # works
-      # message = FormMailer.send_form(params['email'], email: "jay@pfaffman.com", name: "Jay Pfaffman" ) # works
-      message = FormMailer.send_form(params["email"], **fields)
-      # message = FormMailer.send_form(params['email'], filtered ) #broken
-      Email::Sender.new(message, :test_message).send
+      puts "THIS IS CURRENT USER: #{current_user}"
+      puts "Current user is nil" if current_user.nil?
+      pm_user = User.find_by_username(params["pm_user"])
+      raise Discourse::InvalidAccess unless pm_user
 
-      puts "Message! #{message.body}"
-      if params["success_url"]
+      tid = params["form_id"]
+      t = Topic.find(tid)
+      p = Post.find_by(post_number: 1, topic_id: tid)
+      target_user = User.find_by_username(params[:pm_user])
+      sender = User.find_by_username(SiteSetting.form_processor_pm_sender) || User.find(-1)
+      user_guardian = Guardian.new(target_user)
+      can_send = !target_user.nil?
+      can_send &&= user_guardian.can_see?(t)
+      can_send &&= user_guardian.can_send_private_message?(target_user)
+
+      if can_send
+        template = p.raw
+        allow_list = template.scan(/<%= (.*?) %>/).flatten.map(&:to_sym)
+        allow_list = allow_list + %i[success_url failure_url pm_user]
+        puts "my allow: #{allow_list}"
+        referrer = params["referrer"]
+        puts "My referrer: #{referrer}"
+        filtered = params.permit(allow_list)
+        # add arrays to filtered list
+        allow_list.each do |i|
+          filtered = filtered.merge(params.permit(i.to_sym => [])) if params[i].is_a? Array
+        end
+        # filtered = filtered.merge(params.permit("hosting_service".to_sym => []))
+        # .permit("hosting_service".to_sym => [])
+        # .permit("favorite_pet".to_sym => [])
+
+        puts "my filtered #{filtered}"
+        email = params["email"]
+        success_url = params["success_url"]
+        failure_url = params["failure_url"]
+        puts "Sending for user #{sender.id}. going to redirect to #{failure_url}" if failure_url
+
+        begin
+          title = ERB.new(t.title).result_with_hash(filtered)
+          raw = ERB.new(p.raw).result_with_hash(filtered)
+          puts "This is title: #{title}"
+          puts "This is raw: #{raw}"
+          PostCreator.create(
+            sender,
+            title: title,
+            raw: raw,
+            target_usernames: [target_user.username],
+            archetype: Archetype.private_message,
+            skip_validations: true,
+            topic_opts: {
+              custom_fields: {
+                form_data: params,
+              },
+            },
+          )
+        rescue => e
+          puts "Failed to render title or raw: #{e}"
+        end
+      end
+      return_text = "OK"
+      puts return_text = "THIS WAS NOT SENT" unless can_send
+      if false && params["success_url"]
         redirect_to params["success_url"]
       else
-        render json: { hello: "forms are great! I love #{params["name"]}. #{params}" }
+        render json: { text: "#{return_text}. #{params}" }
       end
     end
   end

@@ -4,6 +4,15 @@ en:
       site_settings:
         categories:
           PLUGIN_NAME: "Discourse Form Processor"
+
   js:
     discourse_form_processor:
       placeholder: placeholder
+  site_settings:     
+    form_processor_enabled: "Enable forms processing"
+    form_processor_field_allowlist: "Fields to accept on forms (to use in templates)"
+    form_processor_email_allowlist: "unimplemented"
+    form_processor_destination_email: "Where to send the forms"
+    form_processor_allowed_groups: "Groups that can process forms"
+    form_processor_pm_sender: "user that sends processed forms"
+    form_procesor_debug_mode: Do not redirect to success_url/failure_url

@@ -3,5 +3,23 @@ form_processor:
     default: false
     client: true
   form_processor_field_allowlist:
+    type: list
     client: false
     default: "name|email|forum_url|software|users|posts"
+  form_processor_email_allowlist:
+    type: list
+    client: false
+    default: "user@one.com|user@two.com"
+  form_processor_destination_email:
+    client: false
+    default: nobody@nowhere.com
+  form_processor_allowed_groups:
+    client: false
+    default: ""
+    type: group_list
+  form_processor_pm_sender:
+    default: "system"
+    type: username
+  form_procesor_debug_mode:
+    default: true
+    
