@@ -4,7 +4,7 @@ form_processor:
     client: true
   form_processor_allowed_groups:
     client: false
-    default: ""
+    default: "admins"
     type: group_list
   form_processor_pm_sender:
     default: "system"
@@ -13,10 +13,10 @@ form_processor:
     default: true
   form_processor_allowed_categories:
     type: category_list
-    default: ""
+    default: "templates"
   form_processor_allowed_tags:
     type: tag_list
-    default: ""
+    default: "templates"
   form_processor_allowed_referrer:
     type: list
     default: "http://100.126.148.69:4000/|https://literatecomputing-web.b-cdn.net/"

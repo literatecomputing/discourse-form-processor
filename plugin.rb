@@ -39,6 +39,22 @@ after_initialize do
       "Unexpected form data. #{e}"
     end
   end
+  add_to_serializer(:topic_view, :is_form_template) do
+    ok = false
+    t = object.topic
+    if t.category_id
+      ok ||=
+        (
+          SiteSetting
+            .form_processor_allowed_categories
+            .split("|")
+            .map(&:to_i)
+            .include?(t.category_id)
+        )
+    end
+    ok ||= (t.tags.pluck(:name) & SiteSetting.form_processor_allowed_tags.split("|")).length > 0
+    ok
+  end
   # add_to_serializer(:topic, :form_template) do
   #   object.custom_fields['']
   # end
