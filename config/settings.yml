@@ -2,17 +2,6 @@ form_processor:
   form_processor_enabled:
     default: false
     client: true
-  form_processor_field_allowlist:
-    type: list
-    client: false
-    default: "name|email|forum_url|software|users|posts"
-  form_processor_email_allowlist:
-    type: list
-    client: false
-    default: "user@one.com|user@two.com"
-  form_processor_destination_email:
-    client: false
-    default: nobody@nowhere.com
   form_processor_allowed_groups:
     client: false
     default: ""
@@ -22,4 +11,12 @@ form_processor:
     type: username
   form_procesor_debug_mode:
     default: true
-    
+  form_processor_allowed_categories:
+    type: category_list
+    default: ""
+  form_processor_allowed_tags:
+    type: tag_list
+    default: ""
+  form_processor_allowed_referrer:
+    type: list
+    default: "http://100.126.148.69:4000/|https://literatecomputing-web.b-cdn.net/"

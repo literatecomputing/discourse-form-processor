@@ -22,4 +22,45 @@ require_relative "lib/form_module/engine"
 
 after_initialize do
   # Code which should run after Rails has finished booting
+  # TODO: move allowed referrers to a user custom field
+  # register_editable_user_custom_field(:allowed_referrers)
+  # add_to_class(:user, :allowed_referrers) { self.custom_fields['allowed_referrers'] }
+  add_to_class(:guardian, :allowed_referrer?) do |referrer|
+    puts "Guarding the refererer! #{referrer}"
+    SiteSetting.form_processor_allowed_referrer.include?(referrer)
+  end
+  add_to_serializer(:topic_view, :form_data) do
+    begin
+      if object.topic.custom_fields["form_data"]
+        form_data = JSON.parse(object.topic.custom_fields["form_data"])
+        form_data
+      end
+    rescue => e
+      "Unexpected form data. #{e}"
+    end
+  end
+  # add_to_serializer(:topic, :form_template) do
+  #   object.custom_fields['']
+  # end
+  add_to_class(:guardian, :is_template_topic?) do |t|
+    puts "Guarding the topic! #{t.title}"
+    ok = false
+    if t.category_id
+      ok ||=
+        (
+          SiteSetting
+            .form_processor_allowed_categories
+            .split("|")
+            .map(&:to_i)
+            .include?(t.category_id)
+        )
+    end
+    ok ||= (t.tags.pluck(:name) & SiteSetting.form_processor_allowed_tags.split("|")).length > 0
+    ok
+  end
+  add_to_class(:guardian, :can_use_forms?) do |form_user|
+    (
+      form_user.groups.pluck(:id) & SiteSetting.form_processor_allowed_groups.split("|").map(&:to_i)
+    ).length > 0
+  end
 end

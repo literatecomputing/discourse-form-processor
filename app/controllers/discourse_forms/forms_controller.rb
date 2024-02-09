@@ -17,28 +17,36 @@ module DiscourseForms
     end
 
     def create
+      deny_reason = ""
       puts "THIS IS CURRENT USER: #{current_user}"
       puts "Current user is nil" if current_user.nil?
-      pm_user = User.find_by_username(params["pm_user"])
-      raise Discourse::InvalidAccess unless pm_user
-
-      tid = params["form_id"]
+      referrer = request.env["HTTP_REFERER"]
+      puts "Referrer is #{referrer}"
+      form_user = User.find_by_username(params[:pm_user])
+      raise Discourse::InvalidAccess unless form_user
+      tid = params["id"]
       t = Topic.find(tid)
       p = Post.find_by(post_number: 1, topic_id: tid)
-      target_user = User.find_by_username(params[:pm_user])
       sender = User.find_by_username(SiteSetting.form_processor_pm_sender) || User.find(-1)
-      user_guardian = Guardian.new(target_user)
-      can_send = !target_user.nil?
+      user_guardian = Guardian.new(form_user)
+      can_send = !form_user.nil?
       can_send &&= user_guardian.can_see?(t)
-      can_send &&= user_guardian.can_send_private_message?(target_user)
+      can_send &&= user_guardian.can_send_private_message?(form_user)
 
+      if !user_guardian.allowed_referrer?(referrer)
+        puts "Cannot do it!!!"
+        deny_reason += "#{referrer} not in #{SiteSetting.form_processor_allowed_referrer}"
+        can_send = false
+      end
+      # is in group allowed to process forms?
+      can_send &&= user_guardian.can_use_forms?(form_user)
+      can_send &&= user_guardian.is_template_topic?(t)
+      puts "Can send? #{can_send}"
       if can_send
         template = p.raw
         allow_list = template.scan(/<%= (.*?) %>/).flatten.map(&:to_sym)
         allow_list = allow_list + %i[success_url failure_url pm_user]
         puts "my allow: #{allow_list}"
-        referrer = params["referrer"]
-        puts "My referrer: #{referrer}"
         filtered = params.permit(allow_list)
         # add arrays to filtered list
         allow_list.each do |i|
@@ -59,26 +67,28 @@ module DiscourseForms
           raw = ERB.new(p.raw).result_with_hash(filtered)
           puts "This is title: #{title}"
           puts "This is raw: #{raw}"
-          PostCreator.create(
-            sender,
-            title: title,
-            raw: raw,
-            target_usernames: [target_user.username],
-            archetype: Archetype.private_message,
-            skip_validations: true,
-            topic_opts: {
-              custom_fields: {
-                form_data: params,
+          puts "Calling create!!! from #{sender.username} to #{form_user.username}"
+          new_post =
+            PostCreator.create(
+              sender,
+              title: title,
+              raw: raw,
+              target_usernames: [form_user.username],
+              archetype: Archetype.private_message,
+              skip_validations: true,
+              topic_opts: {
+                custom_fields: {
+                  form_data: params.to_json,
+                },
               },
-            },
-          )
+            )
         rescue => e
           puts "Failed to render title or raw: #{e}"
         end
       end
-      return_text = "OK"
-      puts return_text = "THIS WAS NOT SENT" unless can_send
-      if false && params["success_url"]
+      return_text = "OK--#{new_post.id}"
+      puts return_text = "THIS WAS NOT SENT: #{deny_reason}" unless can_send
+      if !SiteSetting.form_procesor_debug_mode && params["success_url"]
         redirect_to params["success_url"]
       else
         render json: { text: "#{return_text}. #{params}" }
