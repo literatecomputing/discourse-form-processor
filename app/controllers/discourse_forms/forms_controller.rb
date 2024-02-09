@@ -43,7 +43,7 @@ module DiscourseForms
       can_send &&= user_guardian.is_template_topic?(t)
       puts "Can send? #{can_send}"
       if can_send
-        template = p.raw
+        template = p.raw + " " + t.title
         allow_list = template.scan(/<%= (.*?) %>/).flatten.map(&:to_sym)
         allow_list = allow_list + %i[success_url failure_url pm_user]
         puts "my allow: #{allow_list}"
