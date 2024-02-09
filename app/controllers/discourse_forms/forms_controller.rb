@@ -91,14 +91,14 @@ module DiscourseForms
         return_text = "OK"
         return_text += " #{params}" if SiteSetting.form_procesor_debug_mode
         Rails.logger.war t = "THIS WAS NOT SENT: #{deny_reason}" unless can_send
-        if !SiteSetting.form_procesor_debug_mode && params["success_url"] 
+        if !SiteSetting.form_procesor_debug_mode && params["success_url"]
           redirect_to params["success_url"]
         else
           render json: { text: "#{return_text}" }
         end
       else
         return_text = "FAILURE"
-        if !SiteSetting.form_procesor_debug_mode && params["failure_url"] 
+        if !SiteSetting.form_procesor_debug_mode && params["failure_url"]
           redirect_to params["failure_url"]
         else
           render json: { text: "#{return_text}" }
