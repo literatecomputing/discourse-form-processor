@@ -84,14 +84,25 @@ module DiscourseForms
             )
         rescue => e
           puts "Failed to render title or raw: #{e}"
+          Rails.logger.error("Failed to render title or raw: #{e}")
         end
       end
-      return_text = "OK--#{new_post.id}"
-      puts return_text = "THIS WAS NOT SENT: #{deny_reason}" unless can_send
-      if !SiteSetting.form_procesor_debug_mode && params["success_url"]
-        redirect_to params["success_url"]
+      if new_post && can_send
+        return_text = "OK"
+        return_text += " #{params}" if SiteSetting.form_procesor_debug_mode
+        Rails.logger.war t = "THIS WAS NOT SENT: #{deny_reason}" unless can_send
+        if !SiteSetting.form_procesor_debug_mode && params["success_url"] 
+          redirect_to params["success_url"]
+        else
+          render json: { text: "#{return_text}" }
+        end
       else
-        render json: { text: "#{return_text}. #{params}" }
+        return_text = "FAILURE"
+        if !SiteSetting.form_procesor_debug_mode && params["failure_url"] 
+          redirect_to params["failure_url"]
+        else
+          render json: { text: "#{return_text}" }
+        end
       end
     end
   end
