@@ -45,7 +45,7 @@ module DiscourseForms
       if can_send
         template = p.raw + " " + t.title
         allow_list = template.scan(/<%= (.*?) %>/).flatten.map(&:to_sym)
-        allow_list = allow_list + %i[success_url failure_url pm_user]
+        allow_list = allow_list + %i[success_url failure_url pm_user id]
         puts "my allow: #{allow_list}"
         filtered = params.permit(allow_list)
         # add arrays to filtered list
