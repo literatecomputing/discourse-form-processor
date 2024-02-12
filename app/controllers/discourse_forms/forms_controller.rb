@@ -28,7 +28,8 @@ module DiscourseForms
       t = Topic.find(tid)
       p = Post.find_by(post_number: 1, topic_id: tid)
       title_template = t.title
-      title_match = p.raw.match(/^FORM_TITLE:\s?(.*)/)
+      title_regex = Regexp.new("^#{FORM_TITLE_HEADER}:\s?(.*)")
+      title_match = p.raw.match(title_regex)
       title_template = title_match[1] if title_match
       sender = User.find_by_username(SiteSetting.form_processor_pm_sender) || User.find(-1)
       user_guardian = Guardian.new(form_user)
@@ -64,7 +65,8 @@ module DiscourseForms
 
         begin
           title = ERB.new(title_template).result_with_hash(filtered)
-          raw = ERB.new(p.raw).result_with_hash(filtered)
+          body_template = p.raw.gsub(Regexp.new("#{FORM_TITLE_HEADER}:.*"), "")
+          raw = ERB.new(body_template).result_with_hash(filtered)
 
           new_post =
             PostCreator.create(

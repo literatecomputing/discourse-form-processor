@@ -12,6 +12,7 @@ enabled_site_setting :form_processor_enabled
 
 module ::DiscourseForms
   PLUGIN_NAME = "discourse-form-processor"
+  FORM_TITLE_HEADER = "NOTIFICATION_MESSAGE_TITLE"
 end
 
 require_relative "lib/form_module/engine"

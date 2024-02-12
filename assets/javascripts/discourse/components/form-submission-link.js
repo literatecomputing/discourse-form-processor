@@ -34,6 +34,11 @@ export default class FormSubmissionLink extends Component {
   <input type="checkbox" id="${field}2" name="${field}[]" value="${field}2">
 <label for="${field}2">${field}2 label</label><br>
 </div>`;
+      } else if (field.includes("message")) {
+        formText += `\n<div class="form-group">
+  <label for="message">Tell us more about what you need</label>
+  <textarea id="message" name="message" placeholder="Your message goes here" style="height:8rem"></textarea>
+</div>`;
       } else {
         formText += `\n<div class="form-group">
   <label for="${field}">${capitalizeFirstLetter(field)}</label>
