@@ -13,6 +13,7 @@ enabled_site_setting :form_processor_enabled
 module ::DiscourseForms
   PLUGIN_NAME = "discourse-form-processor"
   FORM_TITLE_HEADER = "NOTIFICATION_MESSAGE_TITLE"
+  ALLOWED_REFERRER_CUSTOM_FIELD = "allowed_referrers"
 end
 
 require_relative "lib/form_module/engine"
@@ -20,15 +21,19 @@ require_relative "lib/form_module/engine"
 # Discourse::Application.routes.append do
 #   post "/forms/submit/:id" => "forms#create"
 # end
+DiscoursePluginRegistry.serialized_current_user_fields << DiscourseForms::ALLOWED_REFERRER_CUSTOM_FIELD
 
 after_initialize do
   # Code which should run after Rails has finished booting
   # TODO: move allowed referrers to a user custom field
-  # register_editable_user_custom_field(:allowed_referrers)
-  # add_to_class(:user, :allowed_referrers) { self.custom_fields['allowed_referrers'] }
+  register_editable_user_custom_field(DiscourseForms::ALLOWED_REFERRER_CUSTOM_FIELD)
+  User.register_custom_field_type(DiscourseForms::ALLOWED_REFERRER_CUSTOM_FIELD, :text)
+  add_to_class(:user, :allowed_referrers) { self.custom_fields["allowed_referrers"].split("|") }
   add_to_class(:guardian, :allowed_referrer?) do |referrer|
-    SiteSetting.form_processor_allowed_referrer.include?(referrer)
+    SiteSetting.form_processor_allowed_referrer.include?(referrer) ||
+      current_user.custom_fields[DiscourseForms::ALLOWED_REFERRER_CUSTOM_FIELD].include?(referrer)
   end
+  add_to_class(:guardian, :allowed_referrers) { |referrers| }
   add_to_serializer(:topic_view, :form_data) do
     begin
       if object.topic.custom_fields["form_data"]
