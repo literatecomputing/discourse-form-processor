@@ -5,6 +5,7 @@ class FormMailer < ActionMailer::Base
 
   def send_form(to_address, opts = {})
     puts "mailer got opts #{opts}--reply: #{opts[:email]}"
+    Rails.logger.error "mailer got opts #{opts}--reply: #{opts[:email]}"
     build_email(
       to_address,
       template: "form_mailer",

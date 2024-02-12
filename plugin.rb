@@ -26,7 +26,6 @@ after_initialize do
   # register_editable_user_custom_field(:allowed_referrers)
   # add_to_class(:user, :allowed_referrers) { self.custom_fields['allowed_referrers'] }
   add_to_class(:guardian, :allowed_referrer?) do |referrer|
-    puts "Guarding the refererer! #{referrer}"
     SiteSetting.form_processor_allowed_referrer.include?(referrer)
   end
   add_to_serializer(:topic_view, :form_data) do
@@ -38,6 +37,14 @@ after_initialize do
     rescue => e
       "Unexpected form data. #{e}"
     end
+  end
+  add_to_serializer(:topic_view, :form_fields) do
+    p = Post.find_by(topic_id: object.topic.id, post_number: 1)
+    title_template = object.topic.title
+    title_match = p.raw.match(/^FORM_TITLE:\s?(.*)/)
+    title_template = title_match[1] if title_match
+    template = title_template + " " + p.raw
+    template.scan(/<%= (.*?) %>/).flatten.uniq.map(&:to_sym)
   end
   add_to_serializer(:topic_view, :is_form_template) do
     ok = false

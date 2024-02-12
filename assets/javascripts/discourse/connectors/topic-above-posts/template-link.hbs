@@ -3,6 +3,7 @@
     {{this.model.form_data.id}}</a>
 {{/if}}
 {{#if this.model.is_form_template}}
-  This is a form template. Use
-  <a href="/forms/submit/{{this.model.id}}">this link</a>
+  <FormSubmissionLink @id={{this.model.id}} @topic={{this.model}} />
 {{/if}}
+
+{{this.formText}}
