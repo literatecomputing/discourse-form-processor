@@ -14,8 +14,8 @@ export default class FormSubmissionLink extends Component {
   get formSubmissionText() {
     const capitalizeFirstLetter = (str) =>
       `${str.charAt(0).toUpperCase()}${str.slice(1)}`;
-    window.console.log("formsubmittionlink this", this);
-    window.console.log("currentUser", this.currentUser);
+    // window.console.log("formsubmittionlink this", this);
+    // window.console.log("currentUser", this.currentUser);
     // window.console.log("my topic!!", this.topic);
     let formText = `\n<form action="${window.location.origin}/forms/submit/${this.id}" method="POST">`;
     formText += `\n<input type="hidden" name="success_url" id="_success_url" value="https://google.com/search?q=success">`;
