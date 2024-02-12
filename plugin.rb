@@ -17,6 +17,7 @@ module ::DiscourseForms
 end
 
 require_relative "lib/form_module/engine"
+# register_svg_icon "fa-solid fa-message" if respond_to?(:register_svg_icon)
 
 # Discourse::Application.routes.append do
 #   post "/forms/submit/:id" => "forms#create"
