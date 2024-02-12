@@ -15,3 +15,19 @@ For more information, please see: **url to meta topic**
 - remove allowed referrer as site setting
 - copy button for sample forms
 - DONE. add optional TITLE: in body (raw) rather than using the title
+- add possibility for comments, or other notation in templates
+
+### Specs
+
+- form_data added to submitted forms
+- form_fields added to form templates
+- user record includes referrer url field
+- is_form_template defined (not to be confused with is_template from template plugin)
+- template check -- category and tag (allow tag in other categories?)
+- allowed referrers added to profile
+- example form available if it's a form
+- submit to /forms/submit/:id -- user check (group, user exists, ...)
+- submit to /forms/submit/:id -- referrer check (just user fields)
+- submit to /forms/submit/:id -- fields check
+
+
