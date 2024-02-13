@@ -6,6 +6,10 @@ form_processor:
     client: false
     default: "admins"
     type: group_list
+  form_processor_pm_allowed_groups:
+    client: false
+    default: "admins"
+    type: group_list
   form_processor_pm_sender:
     default: "system"
     type: username
