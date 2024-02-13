@@ -16,6 +16,10 @@ For more information, please see: **url to meta topic**
 - copy button for sample forms
 - DONE. add optional TITLE: in body (raw) rather than using the title
 - add possibility for comments, or other notation in templates
+- tell user to add allowed referrers
+- create user custom field for each form filled out
+- add number of completed forms to current_user serializer
+- add number of completed forms in current month to current_user serializer
 
 ### Specs
 
