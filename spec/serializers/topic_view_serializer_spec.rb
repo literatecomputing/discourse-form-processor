@@ -4,6 +4,7 @@ require "rails_helper"
 
 describe TopicViewSerializer do
   let(:user) { Fabricate(:user) }
+  let(:admin) { Fabricate(:admin) }
   let(:template_group) { Fabricate(:group) }
   let(:pm_template_group) { Fabricate(:group) }
   let(:template_user) { Fabricate(:user, groups: [template_group]) }
@@ -14,9 +15,28 @@ describe TopicViewSerializer do
   let(:template_topic) { Fabricate(:topic, category: template_category) }
   let(:topic_view) { TopicView.new(template_topic, template_user) }
   let(:template_pm) { Fabricate(:private_message_topic, tags: [tag]) }
+  let(:form_result_pm) do
+    Fabricate(
+      :private_message_topic,
+      topic_allowed_users: [
+        Fabricate.build(:topic_allowed_user, user: admin),
+        Fabricate.build(:topic_allowed_user, user: user),
+      ],
+      custom_fields: {
+        "form_data" => {
+          pm_user: "#{user.username}",
+          name: "#{user.name}",
+          email: "#{user.email}",
+          hostname: "forum.sfdasdfasdf.com",
+          message: "this is a message",
+          controller: "discourse_forms/forms",
+          action: "create",
+          id: "#{template_topic.id}",
+        }.to_json,
+      },
+    )
+  end
 
-  private_message_topic
-  let(:form_result_pm_view) { TopicView.new(form_result_pm, user) }
   let(:not_template_topic) { Fabricate(:topic) }
   let(:not_template_topic_view) { TopicView.new(not_template_topic, template_user) }
   let(:template_guardian) { Guardian.new(template_user) }
@@ -75,7 +95,7 @@ describe TopicViewSerializer do
           scope: template_guardian,
           root: false,
         ).as_json
-      puts "Here's the json! #{json}"
+      puts "Here's the not category json! #{json}"
       expect(json[:form_fields]).to eq(nil)
     end
 
@@ -86,9 +106,7 @@ describe TopicViewSerializer do
       SiteSetting.form_processor_allowed_tags = tag.name
       post = Fabricate(:post, topic: template_pm, user: template_user)
       post.update!(raw: raw_template)
-      puts "did the --------update"
       json = TopicViewSerializer.new(topic_view, scope: template_guardian, root: false).as_json
-      puts "Here's the json! #{json}"
       expect(json[:form_fields]).to eq(nil)
     end
 
@@ -112,28 +130,6 @@ describe TopicViewSerializer do
       expect(json[:form_fields]).to eq(nil)
     end
 
-    it "returns custom field with form submission contents" do
-      form_result_pm = Fabricate(:private_message_topic)
-      form_result_pm.update(archetype: "private_message")
-      form_result_pm.custom_fields["form_data"] = {
-        pm_user: "user.username",
-        name: "user.name",
-        email: "jay@pfaffman.com",
-        hostname: "sfdasdfasdf",
-        message: "this is a message",
-        controller: "discourse_forms/forms",
-        action: "create",
-        id: "#{template_topic.id}",
-      },
-      json =
-        TopicViewSerializer.new(
-          not_template_topic_view,
-          scope: Guardian.new(template_user),
-          root: false,
-        ).as_json
-      expect(json[:form_data]).to include("pm_user")
-    end
-
     #   it "returns false when topic not in category" do
     #     SiteSetting.voting_enabled = true
 
@@ -146,37 +142,6 @@ describe TopicViewSerializer do
     #     json = TopicViewSerializer.new(topic_view, scope: guardian, root: false).as_json
 
     #     expect(json[:can_vote]).to eq(false)
-    #   end
-
-    #   it "returns true when voting enabled and topic in category" do
-    #     SiteSetting.voting_enabled = true
-    #     DiscourseTopicVoting::CategorySetting.create!(category: category)
-
-    #     json = TopicViewSerializer.new(topic_view, scope: guardian, root: false).as_json
-
-    #     expect(json[:can_vote]).to eq(true)
-    #   end
-    # end
-
-    # describe "vote_count" do
-    #   it "returns the topic vote counts" do
-    #     Fabricate(:topic_voting_vote_count, topic: topic, votes_count: 3)
-    #     json = TopicViewSerializer.new(topic_view, scope: guardian, root: false).as_json
-
-    #     expect(json[:vote_count]).to eq(3)
-    #   end
-    # end
-
-    # describe "user_voted" do
-    #   it "returns true if the user has voted on the topic" do
-    #     json = TopicViewSerializer.new(topic_view, scope: guardian, root: false).as_json
-
-    #     expect(json[:user_voted]).to eq(false)
-
-    #     Fabricate(:topic_voting_votes, topic: topic, user: user)
-    #     json = TopicViewSerializer.new(topic_view, scope: guardian, root: false).as_json
-
-    #     expect(json[:user_voted]).to eq(false)
     #   end
   end
 end
