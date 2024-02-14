@@ -33,5 +33,6 @@ For more information, please see: **url to meta topic**
 - submit to /forms/submit/:id -- user check (group, user exists, ...)
 - submit to /forms/submit/:id -- referrer check (just user fields)
 - submit to /forms/submit/:id -- fields check
+- form_processor_pm_allowed_groups make sure that's the group that can use PMs
 
 
