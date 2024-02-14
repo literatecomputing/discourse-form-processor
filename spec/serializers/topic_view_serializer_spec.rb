@@ -58,7 +58,6 @@ describe TopicViewSerializer do
       post = Fabricate(:post, topic: template_topic, user: template_user)
       post.update!(raw: raw_template)
       json = TopicViewSerializer.new(topic_view, scope: template_guardian, root: false).as_json
-      puts "Here's the json! #{json}"
       expect(json[:form_fields]).to eq(nil)
       expect(json[:form_data]).to eq(nil)
     end
@@ -70,9 +69,7 @@ describe TopicViewSerializer do
       SiteSetting.form_processor_allowed_categories = template_category.id.to_s
       post = Fabricate(:post, topic: template_topic, user: template_user)
       post.update!(raw: raw_template)
-      puts "made a reqest?"
       json = TopicViewSerializer.new(topic_view, scope: template_guardian, root: false).as_json
-      puts "Here's the json! #{json}"
       expect(json[:form_fields]).to include(:name)
       expect(json[:form_fields]).to include(:email)
       expect(json[:form_fields]).to include(:message)
@@ -84,18 +81,14 @@ describe TopicViewSerializer do
       SiteSetting.form_processor_pm_allowed_groups = pm_template_group.id.to_s
       SiteSetting.form_processor_enabled = true
       SiteSetting.form_processor_allowed_categories = template_category.id.to_s
-      puts "did thesesesese settings"
       post = Fabricate(:post, topic: not_template_topic, user: template_user)
-      puts "did the post -- #{raw_template}"
       post.update!(raw: raw_template)
-      puts "did the not allowed update"
       json =
         TopicViewSerializer.new(
           not_template_topic_view,
           scope: template_guardian,
           root: false,
         ).as_json
-      puts "Here's the not category json! #{json}"
       expect(json[:form_fields]).to eq(nil)
     end
 
@@ -115,18 +108,14 @@ describe TopicViewSerializer do
       SiteSetting.form_processor_pm_allowed_groups = pm_template_group.id.to_s
       SiteSetting.form_processor_allowed_tags = tag.name
       SiteSetting.form_processor_enabled = true
-      puts "did the settings"
       post = Fabricate(:post, topic: not_template_topic, user: template_user)
-      puts "did the post -- #{raw_template}"
       post.update!(raw: raw_template)
-      puts "did the update"
       json =
         TopicViewSerializer.new(
           not_template_topic_view,
           scope: template_guardian,
           root: false,
         ).as_json
-      puts "Here's the json! #{json}"
       expect(json[:form_fields]).to eq(nil)
     end
 
