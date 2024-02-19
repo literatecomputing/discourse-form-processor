@@ -21,6 +21,7 @@ For more information, please see: **url to meta topic**
 - add number of completed forms to current_user serializer
 - add number of completed forms in current month to current_user serializer
 - make a "thanks" page with link to their redirect page for free users
+- figure out why actions are not running
 
 ### Specs
 
