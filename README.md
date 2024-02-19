@@ -20,6 +20,7 @@ For more information, please see: **url to meta topic**
 - create user custom field for each form filled out
 - add number of completed forms to current_user serializer
 - add number of completed forms in current month to current_user serializer
+- make a "thanks" page with link to their redirect page for free users
 
 ### Specs
 
