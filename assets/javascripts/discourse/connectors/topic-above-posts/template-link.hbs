@@ -2,7 +2,8 @@
   <a href="/t/-/{{this.model.form_data.id}}">Template Topic
     {{this.model.form_data.id}}</a>
 {{/if}}
-{{#if this.model.is_form_template}}
+
+{{#if this.model.is_template_topic}}
   <FormSubmissionLink @id={{this.model.id}} @topic={{this.model}} />
 {{/if}}
 

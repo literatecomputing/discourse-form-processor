@@ -1,8 +1,12 @@
-{{#if this.currentUser}}
-  <details>
-    <summary>See example form</summary>
-    <pre>
-      {{formSubmissionText}}
-    </pre>
-  </details>
+{{#if this.formFields}}
+  {{#if this.currentUser}}
+    <div class="html-example">
+      <details>
+        <summary>See example form</summary>
+        <pre class="form-html">
+          {{formSubmissionText}}
+        </pre>
+      </details>
+    </div>
+  {{/if}}
 {{/if}}
