@@ -33,6 +33,10 @@ after_initialize do
   register_user_custom_field_type(DiscourseForms::ALLOWED_REFERRER_CUSTOM_FIELD, :text)
   register_user_custom_field_type(DiscourseForms::SUBMITTED_FORM_CUSTOM_FIELD, :json)
   add_to_class(:user, :allowed_referrers) { self.custom_fields["allowed_referrers"] }
+  add_to_class(:user, :allowed_referrer?) do |referrer|
+    SiteSetting.form_processor_allowed_referrer.include?(referrer) ||
+      self.allowed_referrers.include?(referrer)
+  end
   add_to_class(:user, :forms_processed) do
     UserCustomField.where(user_id: self.id).where("name like 'submitted_form%'").count
   end
@@ -60,9 +64,8 @@ after_initialize do
   end
   add_to_class(:guardian, :allowed_referrer?) do |referrer|
     SiteSetting.form_processor_allowed_referrer.include?(referrer) ||
-      current_user.custom_fields[DiscourseForms::ALLOWED_REFERRER_CUSTOM_FIELD].include?(referrer)
+      (current_user.allowed_referrer?(referrer))
   end
-  add_to_class(:guardian, :allowed_referrers) { |referrers| }
   add_to_class(:guardian, :is_template_topic?) do |t|
     ok = false
     if t.category_id
@@ -78,6 +81,7 @@ after_initialize do
     ok ||= (t.tags.pluck(:name) & SiteSetting.form_processor_allowed_tags.split("|")).length > 0
     ok
   end
+
   add_to_class(:guardian, :can_use_forms?) do |form_user|
     (
       form_user.groups.pluck(:id) & SiteSetting.form_processor_allowed_groups.split("|").map(&:to_i)
