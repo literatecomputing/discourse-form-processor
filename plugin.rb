@@ -15,6 +15,7 @@ module ::DiscourseForms
   PLUGIN_NAME = "discourse-form-processor"
   FORM_TITLE_HEADER = "NOTIFICATION_MESSAGE_TITLE"
   ALLOWED_REFERRER_CUSTOM_FIELD = "allowed_referrers"
+  SUBMITTED_FORM_CUSTOM_FIELD = "submitted_form"
 end
 
 require_relative "lib/form_module/engine"
@@ -29,8 +30,34 @@ after_initialize do
   # Code which should run after Rails has finished booting
   # TODO: move allowed referrers to a user custom field
   register_editable_user_custom_field(DiscourseForms::ALLOWED_REFERRER_CUSTOM_FIELD)
-  User.register_custom_field_type(DiscourseForms::ALLOWED_REFERRER_CUSTOM_FIELD, :text)
+  register_user_custom_field_type(DiscourseForms::ALLOWED_REFERRER_CUSTOM_FIELD, :text)
+  register_user_custom_field_type(DiscourseForms::SUBMITTED_FORM_CUSTOM_FIELD, :json)
   add_to_class(:user, :allowed_referrers) { self.custom_fields["allowed_referrers"] }
+  add_to_class(:user, :forms_processed) do
+    UserCustomField.where(user_id: self.id).where("name like 'submitted_form%'").count
+  end
+  add_to_class(:user, :forms_processed_this_month) do
+    UserCustomField
+      .where(user_id: self.id)
+      .where("name like 'submitted_form%'")
+      .where(created_at: Date.today.all_month)
+      .count
+  end
+  add_to_class(:user, :forms_array) do
+    UserCustomField
+      .where(user_id: self.id)
+      .where("name like 'submitted_form%'")
+      .pluck(:value)
+      .map { |item| JSON.parse(item) }
+  end
+  add_to_class(:user, :forms_this_month_array) do
+    UserCustomField
+      .where(user_id: self.id)
+      .where("name like 'submitted_form%'")
+      .where(created_at: Date.today.all_month)
+      .pluck(:value)
+      .map { |item| JSON.parse(item) }
+  end
   add_to_class(:guardian, :allowed_referrer?) do |referrer|
     SiteSetting.form_processor_allowed_referrer.include?(referrer) ||
       current_user.custom_fields[DiscourseForms::ALLOWED_REFERRER_CUSTOM_FIELD].include?(referrer)
@@ -79,6 +106,38 @@ after_initialize do
       title_template = title_match[1] if title_match
       template = title_template + " " + p.raw
       template.scan(/<%= (.*?) %>/).flatten.uniq.map(&:to_sym)
+    end
+  end
+  add_model_callback(Topic, :after_create) do
+    # if it's a PM and has a form attached, create a user_custom_field
+    puts "creating a topic. adding a thing"
+    t = self
+    if t.archetype == "private_message"
+      if t.custom_fields["form_data"]
+        puts "GOT ata"
+        form_data = JSON.parse(t.custom_fields["form_data"])
+        username = form_data["pm_user"] if form_data
+        u = User.find_by_username(username) if username
+        if u
+          puts "------>>>>>got user!!!! with #{form_data}"
+          template_id = form_data["id"]
+          puts "-------------------------->>> template #{template_id}"
+          begin
+            json_load = {
+              user_id: u.id,
+              topic_id: t.id,
+              template_id: template_id,
+              created_at: Time.now,
+            }.to_json
+            puts "going to save #{json_load}"
+            u.custom_fields["#{DiscourseForms::SUBMITTED_FORM_CUSTOM_FIELD}_#{t.id}"] = json_load
+            puts "---------------------------> going to save #{u.custom_fields}"
+            u.save
+          rescue => e
+            puts "can't save usercustom fields because #{e}"
+          end
+        end
+      end
     end
   end
   # add_to_serializer(:topic, :form_template) do
