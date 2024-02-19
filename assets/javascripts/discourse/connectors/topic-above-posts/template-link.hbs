@@ -4,6 +4,24 @@
 {{/if}}
 
 {{#if this.model.is_template_topic}}
+  {{#if currentUser.form_allowed_referrers}}
+    <div class="allowed-referrers">
+      {{i18n "discourse_form_processor.allowed_referrers"}}:
+      {{currentUser.form_allowed_referrers}}
+    </div>
+  {{else}}
+    <div class="missing-referrers alert">
+      {{d-icon "far-eye"}}
+      {{i18n "discourse_form_processor.missing_referrers_pre_link"}}
+      <LinkTo @route="preferences.profile" @model={{this.currentUser}}>
+        {{d-icon "cog"}}
+        <span class="item-label">
+          {{i18n "user.preferences"}}
+        </span>
+      </LinkTo>
+      {{i18n "discourse_form_processor.missing_referrers_post_link"}}
+    </div>
+  {{/if}}
   <FormSubmissionLink @id={{this.model.id}} @topic={{this.model}} />
 {{/if}}
 

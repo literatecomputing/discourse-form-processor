@@ -33,6 +33,11 @@ after_initialize do
   register_user_custom_field_type(DiscourseForms::ALLOWED_REFERRER_CUSTOM_FIELD, :text)
   register_user_custom_field_type(DiscourseForms::SUBMITTED_FORM_CUSTOM_FIELD, :json)
   add_to_class(:user, :allowed_referrers) { self.custom_fields["allowed_referrers"] }
+  add_to_class(:user, :allowed_referrers=) do |referrers|
+    self.custom_fields["allowed_referrers"] = referrers
+    self.save
+  end
+
   add_to_class(:user, :allowed_referrer?) do |referrer|
     SiteSetting.form_processor_allowed_referrer.include?(referrer) ||
       self.allowed_referrers.include?(referrer)
@@ -96,6 +101,14 @@ after_initialize do
     rescue => e
       "Unexpected form data. #{e}"
     end
+  end
+
+  add_to_serializer(:current_user, :form_allowed_referrers) do
+    puts "Getting stuff"
+    puts "#{object.username}"
+    puts "#{object.allowed_referrers}"
+
+    object.allowed_referrers
   end
   add_to_serializer(:topic_view, :is_template_topic) do
     guardian = Guardian.new(scope.current_user)

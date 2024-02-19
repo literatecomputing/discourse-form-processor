@@ -29,7 +29,7 @@ RSpec.describe "Topic page form elements", type: :system, mobile: true do
     let(:guardian) { Guardian.new(user) }
     fab!(:tag)
 
-    it "shows form if there are form_fieds" do
+    it "shows form if there are form_fields" do
       SiteSetting.form_processor_allowed_groups = template_group.id
       SiteSetting.form_processor_pm_allowed_groups = pm_template_group.id.to_s
       SiteSetting.form_processor_enabled = true
@@ -67,6 +67,41 @@ RSpec.describe "Topic page form elements", type: :system, mobile: true do
       visit("/t/-/#{template_topic.id}")
       expect(page).to have_no_css(".html-example")
       expect(page).to have_no_css(".form-html")
+    end
+    it "complains on template topic when there are no allowed referers" do
+      SiteSetting.form_processor_allowed_groups = template_group.id
+      SiteSetting.form_processor_pm_allowed_groups = pm_template_group.id.to_s
+      SiteSetting.form_processor_enabled = true
+      SiteSetting.form_processor_allowed_categories = template_category.id.to_s
+      post = Fabricate(:post, topic: template_topic, user: template_user)
+      #post.update!(raw: raw_template)
+      visit("/t/-/#{template_topic.id}")
+      expect(page).to have_css(".missing-referrers")
+    end
+    it "shows allowed referers on template topic when they exist" do
+      SiteSetting.form_processor_allowed_groups = template_group.id
+      SiteSetting.form_processor_pm_allowed_groups = pm_template_group.id.to_s
+      SiteSetting.form_processor_enabled = true
+      SiteSetting.form_processor_allowed_categories = template_category.id.to_s
+      post = Fabricate(:post, topic: template_topic, user: template_user)
+      post.update!(raw: raw_template)
+      user.allowed_referrers = "https://codinghorror.com/"
+
+      visit("/t/-/#{template_topic.id}")
+      expect(page).to have_css(".allowed-referrers")
+    end
+
+    it "does not show allowed referers on non-template topic when they exist" do
+      SiteSetting.form_processor_allowed_groups = template_group.id
+      SiteSetting.form_processor_pm_allowed_groups = pm_template_group.id.to_s
+      SiteSetting.form_processor_enabled = true
+      SiteSetting.form_processor_allowed_categories = template_category.id.to_s
+      user.allowed_referrers = "https://codinghorrow.com/"
+
+      post = Fabricate(:post, topic: not_template_topic, user: template_user)
+      post.update!(raw: "some non template text")
+      visit("/t/-/#{not_template_topic.id}")
+      expect(page).to have_no_css(".allowed-referrers")
     end
   end
 end

@@ -9,7 +9,10 @@ en:
     discourse_form_processor:
       placeholder: placeholder
       allowed_referrers: "Allowed referrers"
+      missing_referrers_pre_link: 'Submissions Disabled. Set "allowed referrers" on'
+      missing_referrers_post_link: ''
       allowed_referrers_description: "Pipe-delimited list of URLs that can submit forms to you"
+
   site_settings:     
     form_processor_enabled: "Enable forms processing"
     form_processor_allowed_groups: "Groups that can process forms"
