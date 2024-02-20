@@ -71,7 +71,8 @@ module DiscourseForms
 
           quoted_raw = raw.gsub("\n", "\n>  ")
 
-          mailto_link = "\n\n[Reply by email](mailto:#{email}?subject=#{CGI.escape(title)}&body=#{CGI.escape(quoted_raw)})"
+          mailto_link =
+            "\n\n[Reply by email](mailto:#{email}?subject=#{CGI.escape(title)}&body=#{CGI.escape(quoted_raw)})"
           new_post =
             PostCreator.create(
               sender,
