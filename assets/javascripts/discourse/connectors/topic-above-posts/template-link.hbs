@@ -1,6 +1,7 @@
 {{#if this.model.form_data.id}}
-  <a href="/t/-/{{this.model.form_data.id}}">Template Topic
-    {{this.model.form_data.id}}</a>
+  <LinkTo @route="topic" @model="{{this.model.form_data.id}}">
+    {{i18n "discourse_form_processor.visit_template_topic"}}
+  </LinkTo>
 {{/if}}
 
 {{#if this.model.is_template_topic}}
