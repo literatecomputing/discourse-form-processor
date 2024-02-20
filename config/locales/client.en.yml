@@ -12,6 +12,7 @@ en:
       missing_referrers_pre_link: 'Submissions Disabled. Set "allowed referrers" on'
       missing_referrers_post_link: ''
       allowed_referrers_description: "Pipe-delimited list of URLs that can submit forms to you"
+      visit_template_topic: "Visit Template"
 
   site_settings:     
     form_processor_enabled: "Enable forms processing"
