@@ -22,6 +22,9 @@ For more information, please see: **url to meta topic**
 - add number of completed forms in current month to current_user serializer
 - make a "thanks" page with link to their redirect page for free users
 - figure out why actions are not running
+- make group that allows teams (adding to team group creates user-team group and private category)
+- make it easier to find forms and data
+- form pms get a tag
 
 ### Specs
 
@@ -36,5 +39,5 @@ For more information, please see: **url to meta topic**
 - submit to /forms/submit/:id -- referrer check (just user fields)
 - submit to /forms/submit/:id -- fields check
 - form_processor_pm_allowed_groups make sure that's the group that can use PMs
-
+- specs for form submission (look at webhook specs)
 
