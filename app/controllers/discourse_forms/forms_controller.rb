@@ -58,6 +58,7 @@ module DiscourseForms
         # .permit("hosting_service".to_sym => [])
         # .permit("favorite_pet".to_sym => [])
         email = params["email"]
+        # name = params['name'] # TODO: add name to the email address in the mailto:
         success_url = params["success_url"]
         failure_url = params["failure_url"]
         debug_mode = params["debug_mode"]
@@ -68,11 +69,14 @@ module DiscourseForms
           body_template = p.raw.gsub(Regexp.new("#{FORM_TITLE_HEADER}:.*"), "")
           raw = ERB.new(body_template).result_with_hash(filtered)
 
+          quoted_raw = raw.gsub("\n", "\n>  ")
+
+          mailto_link = "\n\n[Reply by email](mailto:#{email}?subject=#{CGI.escape(title)}&body=#{CGI.escape(quoted_raw)})"
           new_post =
             PostCreator.create(
               sender,
               title: title,
-              raw: raw,
+              raw: email ? raw + mailto_link : raw,
               target_usernames: [form_user.username],
               archetype: Archetype.private_message,
               skip_validations: true,
