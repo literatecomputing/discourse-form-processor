@@ -39,8 +39,8 @@ after_initialize do
   end
 
   add_to_class(:user, :allowed_referrer?) do |referrer|
-    SiteSetting.form_processor_allowed_referrer.include?(referrer) ||
-      self.allowed_referrers.include?(referrer)
+    puts "user checking allowed referrer #{referrer}"
+    self.allowed_referrers && self.allowed_referrers.include?(referrer)
   end
   add_to_class(:user, :forms_processed) do
     UserCustomField.where(user_id: self.id).where("name like 'submitted_form%'").count
@@ -67,10 +67,12 @@ after_initialize do
       .pluck(:value)
       .map { |item| JSON.parse(item) }
   end
+
   add_to_class(:guardian, :allowed_referrer?) do |referrer|
-    SiteSetting.form_processor_allowed_referrer.include?(referrer) ||
-      (current_user.allowed_referrer?(referrer))
+    puts "checking if #{referrer} is allowed referrer #{current_user.allowed_referrers} (#{current_user.allowed_referrer?(referrer)})"
+    current_user.allowed_referrer?(referrer)
   end
+
   add_to_class(:guardian, :is_template_topic?) do |t|
     ok = false
     if t.category_id
@@ -82,16 +84,43 @@ after_initialize do
             .map(&:to_i)
             .include?(t.category_id)
         )
+      puts "SS: #{
+             SiteSetting
+               .form_processor_allowed_categories
+               .split("|")
+               .map(&:to_i)
+               .include?(t.category_id)
+           }"
     end
     ok ||= (t.tags.pluck(:name) & SiteSetting.form_processor_allowed_tags.split("|")).length > 0
     ok
   end
 
   add_to_class(:guardian, :can_use_forms?) do |form_user|
-    (
-      form_user.groups.pluck(:id) & SiteSetting.form_processor_allowed_groups.split("|").map(&:to_i)
-    ).length > 0
+    puts "My groups: #{form_user.groups.pluck(:id)}. Allowed: #{SiteSetting.form_processor_allowed_groups.split("|").map(&:to_i)}"
+    puts "The stuff #{(form_user.groups.pluck(:id) & SiteSetting.form_processor_allowed_groups.split("|").map(&:to_i)).length}"
+    num_groups =
+      (
+        form_user.groups.pluck(:id) &
+          SiteSetting.form_processor_allowed_groups.split("|").map(&:to_i)
+      ).length
+    puts "Number groups: #{num_groups}."
+    puts "can use forms? #{num_groups > 0}"
+    num_groups > 0
   end
+  add_to_class(:guardian, :can_use_pm_forms?) do |form_user|
+    puts "My groups: #{form_user.groups.pluck(:id)}. Allowed: #{SiteSetting.form_processor_pm_allowed_groups.split("|").map(&:to_i)}"
+    puts "The stuff #{(form_user.groups.pluck(:id) & SiteSetting.form_processor_pm_allowed_groups.split("|").map(&:to_i)).length}"
+    num_groups =
+      (
+        form_user.groups.pluck(:id) &
+          SiteSetting.form_processor_pm_allowed_groups.split("|").map(&:to_i)
+      ).length
+    puts "Number groups: #{num_groups}."
+    puts "can use forms? #{num_groups > 0}"
+    num_groups > 0
+  end
+  add_to_class(:topic, :form_data) { JSON.parse(self.custom_fields["form_data"]) }
   add_to_serializer(:topic_view, :form_data) do
     begin
       if object.topic.custom_fields["form_data"]

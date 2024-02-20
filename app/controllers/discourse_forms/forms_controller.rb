@@ -7,21 +7,16 @@ module DiscourseForms
     requires_plugin PLUGIN_NAME
 
     def index
-      puts "doing a controller index"
       render json: { hello: "world" }
     end
 
     def show
-      puts "--------------------->>>> doing a controller show"
       render json: { hello: "this is a show" }
     end
 
     def create
       deny_reason = ""
-      # puts "THIS IS CURRENT USER: #{current_user}"
-      # puts "Current user is nil" if current_user.nil?
       referrer = request.env["HTTP_REFERER"]
-      # puts "Referrer is #{referrer}"
       form_user = User.find_by_username(params[:pm_user])
       raise Discourse::InvalidAccess unless form_user
       tid = params["id"]
@@ -35,16 +30,20 @@ module DiscourseForms
       user_guardian = Guardian.new(form_user)
       can_send = !form_user.nil?
       can_send &&= user_guardian.can_see?(t)
-      can_send &&= user_guardian.can_send_private_message?(form_user)
+      if t.archetype == Archetype.private_message
+        can_send &&= (form_user.id == t.user_id)
+        # user_guardian.can_send_private_message?(form_user)
+        can_send &&= user_guardian.can_use_pm_forms?(form_user)
+      end
 
       if !user_guardian.allowed_referrer?(referrer)
-        deny_reason += "#{referrer} not in #{SiteSetting.form_processor_allowed_referrer}"
+        deny_reason += "#{referrer} not in #{form_user.allowed_referrers}"
         can_send = false
       end
+
       # is in group allowed to process forms?
       can_send &&= user_guardian.can_use_forms?(form_user)
       can_send &&= user_guardian.is_template_topic?(t)
-      # puts "Can send? #{can_send}"
       if can_send
         template = title_template + " " + p.raw
         allow_list = template.scan(/<%= (.*?) %>/).flatten.map(&:to_sym)
@@ -58,17 +57,23 @@ module DiscourseForms
         # .permit("hosting_service".to_sym => [])
         # .permit("favorite_pet".to_sym => [])
         email = params["email"] || form_user.email
-        name = params['name'] # TODO: add name to the email address in the mailto:
+        name = params["name"] # TODO: add name to the email address in the mailto:
         success_url = params["success_url"]
         failure_url = params["failure_url"]
         debug_mode = params["debug_mode"]
-        # puts "Sending for user #{sender.id}. going to redirect to #{failure_url}" if failure_url
 
         begin
           title = ERB.new(title_template).result_with_hash(filtered)
           body_template = p.raw.gsub(Regexp.new("#{FORM_TITLE_HEADER}:.*"), "")
           raw = ERB.new(body_template).result_with_hash(filtered)
-          reply_to_header = name ? "On #{Time.now} #{name} <#{email}> wrote: \n" : "On #{Time.now} #{email} wrote: \n"
+          reply_to_header =
+            (
+              if name
+                "On #{Time.now} #{name} <#{email}> wrote: \n"
+              else
+                "On #{Time.now} #{email} wrote: \n"
+              end
+            )
 
           quoted_raw = reply_to_header + raw.gsub("\n", "\n>  ")
 
@@ -91,14 +96,14 @@ module DiscourseForms
               },
             )
         rescue => e
-          puts "Failed to render title or raw: #{e}"
           Rails.logger.error("Failed to render title or raw: #{e}")
         end
       end
+
       if new_post && can_send
         return_text = "OK"
         return_text += " #{params}" if SiteSetting.form_procesor_debug_mode
-        Rails.logger.war t = "THIS WAS NOT SENT: #{deny_reason}" unless can_send
+        Rails.logger.warn t = "THIS WAS NOT SENT: #{deny_reason}" unless can_send
         if !SiteSetting.form_procesor_debug_mode && !debug_mode && params["success_url"]
           redirect_to params["success_url"]
         else
