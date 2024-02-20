@@ -57,7 +57,7 @@ module DiscourseForms
         # filtered = filtered.merge(params.permit("hosting_service".to_sym => []))
         # .permit("hosting_service".to_sym => [])
         # .permit("favorite_pet".to_sym => [])
-        email = params["email"]
+        email = params["email"] || form_user.email
         # name = params['name'] # TODO: add name to the email address in the mailto:
         success_url = params["success_url"]
         failure_url = params["failure_url"]
@@ -80,7 +80,9 @@ module DiscourseForms
               raw: email ? raw + mailto_link : raw,
               target_usernames: [form_user.username],
               archetype: Archetype.private_message,
+              # don't want to be stopped by watched word or post length validations
               skip_validations: true,
+              tags: SiteSetting.form_processor_submission_tag.split("|"),
               topic_opts: {
                 custom_fields: {
                   form_data: params.to_json,

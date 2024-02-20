@@ -21,6 +21,9 @@ form_processor:
   form_processor_allowed_tags:
     type: tag_list
     default: "templates"
+  form_processor_submission_tag:
+    type: tag_list
+    default: "form_submission"
   form_processor_allowed_referrer:
     type: list
     default: "http://100.126.148.69:4000/|https://literatecomputing-web.b-cdn.net/"
