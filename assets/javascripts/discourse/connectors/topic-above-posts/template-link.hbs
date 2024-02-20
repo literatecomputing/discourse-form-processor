@@ -1,5 +1,5 @@
 {{#if this.model.form_data.id}}
-  <LinkTo @route="topic" @model="{{this.model.form_data.id}}">
+  <LinkTo @route="topic" @model={{this.model.form_data.id}}>
     {{i18n "discourse_form_processor.visit_template_topic"}}
   </LinkTo>
 {{/if}}
