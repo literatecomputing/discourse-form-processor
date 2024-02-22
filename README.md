@@ -18,6 +18,8 @@ For more information, please see: **url to meta topic**
 - DONE. make copy button for form code
 - instead of direct redirect, push an HTML page with branding that redirects after 5-10 seconds
 - checkbox/setting to disable jekyll frontmatter
+- add custom field for customized forms
+- see if it's possible to use 
 - DONE. control access by group
 - DONE. security: check that user has read access to the topic
 - DONE. setting to determine what user sends the PM
@@ -29,8 +31,10 @@ For more information, please see: **url to meta topic**
 - DONE. add number of completed forms in current month to current_user serializer
 - DONE. form pms get a tag
 
+
 ### Specs
 
+- make sure that the code copy buttons work
 - DONE. form_data added to submitted forms
 - DONE. form_fields added to form templates
 - check? user record includes referrer url field

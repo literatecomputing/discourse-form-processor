@@ -79,7 +79,6 @@ export default class FormSubmissionLink extends Component {
   @action
   async createNewTopic() {
     const text = await this.fetchRaw();
-    const tag = SVGAnimatedString;
     this.composer.openNewMessage({
       body: text,
       title: `Copy of ${this.topic.title}`,
