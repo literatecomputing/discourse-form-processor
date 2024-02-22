@@ -45,12 +45,19 @@ after_initialize do
   add_to_class(:user, :forms_processed) do
     UserCustomField.where(user_id: self.id).where("name like 'submitted_form%'").count
   end
+  add_to_serializer(:current_user, :forms_processed) do
+    puts "------------------->  wstf #{object.forms_processed}"
+    object.forms_processed
+  end
   add_to_class(:user, :forms_processed_this_month) do
     UserCustomField
       .where(user_id: self.id)
       .where("name like 'submitted_form%'")
       .where(created_at: Date.today.all_month)
       .count
+  end
+  add_to_serializer(:current_user, :forms_processed_this_month) do
+    object.forms_processed_this_month
   end
   add_to_class(:user, :forms_array) do
     UserCustomField
@@ -142,6 +149,9 @@ after_initialize do
   add_to_serializer(:topic_view, :is_template_topic) do
     guardian = Guardian.new(scope.current_user)
     guardian.is_template_topic?(object.topic)
+  end
+  add_to_serializer(:topic_view, :form_pm_tag) do
+    SiteSetting.form_processor_allowed_tags.split("|").first
   end
   add_to_serializer(:topic_view, :form_fields) do
     guardian = Guardian.new(scope.current_user)

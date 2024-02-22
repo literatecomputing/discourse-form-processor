@@ -1,10 +1,26 @@
 {{#if this.model.form_data.id}}
+  {{#if currentUser.forms_processed}}
+    <div class="form-counter">
+      {{currentUser.forms_processed}}
+      forms processed by FormMaster,
+      {{currentUser.forms_processed_this_month}}
+      this month.
+    </div>
+  {{/if}}
   <LinkTo @route="topic" @model={{this.model.form_data.id}}>
     {{i18n "discourse_form_processor.visit_template_topic"}}
   </LinkTo>
 {{/if}}
 
 {{#if this.model.is_template_topic}}
+  {{#if currentUser.forms_processed}}
+    <div class="form-counter">
+      {{currentUser.forms_processed}}
+      forms processed by FormMaster,
+      {{currentUser.forms_processed_this_month}}
+      this month.
+    </div>
+  {{/if}}
   {{#if currentUser.form_allowed_referrers}}
     <div class="allowed-referrers">
       {{i18n "discourse_form_processor.allowed_referrers"}}:

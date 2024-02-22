@@ -9,10 +9,14 @@ en:
     discourse_form_processor:
       placeholder: placeholder
       allowed_referrers: "Allowed referrers"
-      missing_referrers_pre_link: 'Submissions Disabled. Set "allowed referrers" on'
+      missing_referrers_pre_link: 'Welcome! To use FormHoster forms on your site, set "allowed referrers" on'
       missing_referrers_post_link: ''
       allowed_referrers_description: "Pipe-delimited list of URLs that can submit forms to you"
-      visit_template_topic: "Visit Template"
+      visit_template_topic: "See Form Response Template"
+      copy_template: "Copy form code"
+      view_template: "View form code"
+      create_template_pm: "Create custom version of this template"
+      create_template_title: "Please add the '%{tag}' tag to your PM before you use it!"
 
 
   site_settings:     
