@@ -31,7 +31,7 @@ export default class FormSubmissionLink extends Component {
     form += `formhoster_endpoint: ${window.location.origin}/forms/submit/${this.topic.id}\n`;
     form += `---\n\n`;
     form += `\n<form action="${window.location.origin}/forms/submit/${this.id}" method="POST">`;
-    form += `\n<input type="hidden" name="success_url" id="_success_url" value="https://google.com/search?q=success">`;
+    form += `\n<input type="hidden" name="success_url" id="_success_url" value="${window.location.origin/pub/success}">`;
     form += `\n<input type="hidden" name="pm_user" id="pm_user" value="${this.currentUser.username}">`;
     form += `\n<input type="hidden" name="debug_mode" id="debug_mode" value=True>`;
 
