@@ -6,6 +6,8 @@ For more information, please see: **url to meta topic**
 
 ## TODO
 
+- allow create PM button only if in PM group
+- change pm_user to something like formhoster_user. Also, consider using userid instead of username?
 - DONE. display number of total and monthly forms.
 - make a "thanks" page with link to their redirect page for free users
 - DONE? figure out why actions are not running (??)
