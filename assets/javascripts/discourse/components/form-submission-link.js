@@ -94,4 +94,8 @@ export default class FormSubmissionLink extends Component {
     this.copyConfirm = true;
     discourseDebounce(this.resetCopyButton, 2000);
   }
+  @action
+  resetCopyButton() {
+    this.copyConfirm = false;
+  }
 }
