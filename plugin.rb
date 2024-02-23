@@ -66,6 +66,12 @@ after_initialize do
       .pluck(:value)
       .map { |item| JSON.parse(item) }
   end
+  add_to_class(:user, :github_username) do
+    if uac = UserAssociatedAccount.find_by(user_id: self.id, provider_name: "github")
+      uac.info["nickname"]
+    end
+  end
+  add_to_serializer(:current_user, :github_username) { object.github_username }
   add_to_class(:user, :forms_this_month_array) do
     UserCustomField
       .where(user_id: self.id)
