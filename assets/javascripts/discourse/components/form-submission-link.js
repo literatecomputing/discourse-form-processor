@@ -30,8 +30,9 @@ export default class FormSubmissionLink extends Component {
     form += `formhoster_url: ${window.location.origin}/${this.topic.slug}/${this.topic.id}\n`;
     form += `formhoster_endpoint: ${window.location.origin}/forms/submit/${this.topic.id}\n`;
     form += `---\n\n`;
+    form += '\n<div class="formhoster-form">';
     form += `\n<form action="${window.location.origin}/forms/submit/${this.id}" method="POST">`;
-    form += `\n<input type="hidden" name="success_url" id="_success_url" value="${window.location.origin}/pub/success}">`;
+    form += `\n<input type="hidden" name="success_url" id="_success_url" value="${window.location.origin}/pub/success">`;
     form += `\n<input type="hidden" name="pm_user" id="pm_user" value="${this.currentUser.username}">`;
     form += `\n<input type="hidden" name="debug_mode" id="debug_mode" value=True>`;
 
@@ -44,11 +45,11 @@ export default class FormSubmissionLink extends Component {
   <label for="${field}1">${field}2 label</label><br>
   ${field} description<br>
   <input type="checkbox" id="${field}2" name="${field}[]" value="${field}2">
-<label for="${field}2">${field}2 label</label><br>
+<label for="${field}2">${field}2 label: </label><br>
 </div>`;
       } else if (field.includes("message")) {
         form += `\n<div class="form-group">
-  <label for="message">Tell us more about what you need</label>
+  <label for="message">Your ${field}: </label>
   <textarea id="message" name="message" placeholder="Your message goes here" style="height:8rem"></textarea>
 </div>`;
       } else {
@@ -61,6 +62,7 @@ export default class FormSubmissionLink extends Component {
 
     form += `\n<input class="button" type="submit" value="Submit">`;
     form += `\n</form>`;
+    form += "\n</div>";
     return form;
   }
 
