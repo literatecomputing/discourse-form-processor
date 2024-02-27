@@ -56,6 +56,14 @@ after_initialize do
       .where(created_at: Date.today.all_month)
       .count
   end
+  add_to_class(:user, :forms_results) do 
+    tq=TopicQuery.new(self).list_private_messages(self)
+    tcf = TopicCustomField.where("topic_id in (?)",tq.topics.pluck(:id))
+    Hash[tcf.pluck(:topic_id, :value).map {|(k , v) | [k,JSON.parse(v)]}]
+  end 
+  add_to_class(:user, :forms_results_fields) do
+    self.forms_results.values.flat_map(&:keys).uniq
+  end
   add_to_serializer(:current_user, :forms_processed_this_month) do
     object.forms_processed_this_month
   end
