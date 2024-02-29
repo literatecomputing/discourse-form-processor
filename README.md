@@ -6,15 +6,17 @@ For more information, please see: **url to meta topic**
 
 ## TODO
 
-- 1 make it easier to find forms and data
+- DONE make better sense of what debug mode should look like -- maybe don't send PM except to self?
+- DONE see that there is a reason for every failure
 - 1 instead of direct redirect, push an HTML page with branding that redirects after 5-10 seconds
-- 1 see that there is a reason for every failure
+- 1 make a way to pay with 30 day free triall
+- 2 make it easier to find forms and data
+- 2 do sometihng about spam processing
 - 2 change pm_user to something like formhoster_user. Also, consider using userid instead of username?
 - 2 consider: add an endpoint at something like `https://getform.io/f/mbkyQrez` that allows "all" variables.
 - 2 add honeypot like `<input type="hidden" name="_gotcha" style="display:none !important">`. 
 - 2 get honeypot ideas from https://blog.stefanolaru.com/how-to-make-the-honeypot-field-more-effective
 - 2 don't let them copy code if they aren't in the group
-- 1 make better sense of what debug mode should look like -- maybe don't send PM except to self?
 - 2 do something about processing forms if user is not in group
 - 2 slack notifications https://api.slack.com/methods/chat.postMessage
 - 2 zapier push
