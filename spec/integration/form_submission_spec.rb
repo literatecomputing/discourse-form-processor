@@ -29,9 +29,18 @@ RSpec.describe "Form submission" do
     expect(response.body).to include("OK")
   end
 
+  def expect_response_to_be_successful_redirect
+    expect(response.status).to eq(302)
+    expect(response.body).to include("You are being")
+  end
   def expect_response_not_to_be_successful
+    expect(response.status).to eq(403)
+    expect(response.body).to include("FAILED")
+  end
+  def expect_response_to_be_successful_debug
     expect(response.status).to eq(200)
-    expect(response.body).to include("FAILURE")
+    expect(response.body).to include("DEBUG MODE!")
+    expect(response.body).to include("We are debugging this form.")
   end
 
   def expect_topic_to_be_created(pm_user)
@@ -64,7 +73,8 @@ RSpec.describe "Form submission" do
   end
 
   describe "form post" do
-    it "allows a member of the template group submit a form" do
+    it "allows a member of the template group to submit a form" do
+      puts "---------------------> doing g s a f"
       referer_url = "https://mysite.com/contact-form"
       template_user.allowed_referrers = referer_url
       post "/forms/submit/#{template_topic.id}",
@@ -82,11 +92,33 @@ RSpec.describe "Form submission" do
              controller: "discourse_forms/forms",
              action: "create",
            }
-      expect_response_to_be_successful
+      expect_response_to_be_successful_redirect
       expect_topic_to_be_created(template_user.username)
       #expect_web_hook_event_name_to_be("chat_message_edited")
       # expect_web_hook_event_category_to_be(category)
     end
+
+    it "allows a member of the template group to submit a form in debug mode" do
+      referer_url = "https://mysite.com/contact-form"
+      template_user.allowed_referrers = referer_url
+      post "/forms/submit/#{template_topic.id}",
+           headers: {
+             "HTTP_REFERER" => referer_url,
+           },
+           params: {
+             success_url: "https://somewhere.com/success",
+             pm_user: template_user.username,
+             hostname: "discourse.person.com",
+             name: "Pat Person",
+             email: "pat@person.com",
+             debug_mode: "True",
+             message:
+               "We are debugging this form.",
+             controller: "discourse_forms/forms",
+             action: "create",
+           }
+      expect_response_to_be_successful_debug
+    end    
 
     it "allows a member of the template group submit a form in a PM" do
       referer_url = "https://mysite.com/contact-form"
@@ -106,7 +138,7 @@ RSpec.describe "Form submission" do
              controller: "discourse_forms/forms",
              action: "create",
            }
-      expect_response_to_be_successful
+      expect_response_to_be_successful_redirect      
       expect_topic_to_be_created(pm_template_user.username)
       #expect_web_hook_event_name_to_be("chat_message_edited")
       # expect_web_hook_event_category_to_be(category)
