@@ -54,7 +54,7 @@ module DiscourseForms
       elsif can_send
         template = title_template + " " + p.raw
         allow_list = template.scan(/<%= (.*?) %>/).flatten.map(&:to_sym)
-        allow_list = allow_list + %i[success_url failure_url pm_user id debug_mode]
+        allow_list = allow_list + %i[success_url failure_url pm_user id debug_mode formhoster_id formhoster_user]
         filtered = params.permit(allow_list)
         # add arrays to filtered list
         allow_list.each do |i|
@@ -111,7 +111,7 @@ module DiscourseForms
       # .permit("favorite_pet".to_sym => [])
 
       if debug_mode
-        return_text = "DEBUG MODE! Form Accepted\n\n#{raw}\n\n#{params}"
+        return_text = "DEBUG MODE! Form Accepted\n\n#{title}\n\n#{raw}\n\n#{params}"
       elsif new_post && can_send
         return_text = "OK"
         return_text += " #{params}" if SiteSetting.form_procesor_debug_mode
