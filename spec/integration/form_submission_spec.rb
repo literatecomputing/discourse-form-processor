@@ -112,13 +112,12 @@ RSpec.describe "Form submission" do
              name: "Pat Person",
              email: "pat@person.com",
              debug_mode: "True",
-             message:
-               "We are debugging this form.",
+             message: "We are debugging this form.",
              controller: "discourse_forms/forms",
              action: "create",
            }
       expect_response_to_be_successful_debug
-    end    
+    end
 
     it "allows a member of the template group submit a form in a PM" do
       referer_url = "https://mysite.com/contact-form"
@@ -138,7 +137,7 @@ RSpec.describe "Form submission" do
              controller: "discourse_forms/forms",
              action: "create",
            }
-      expect_response_to_be_successful_redirect      
+      expect_response_to_be_successful_redirect
       expect_topic_to_be_created(pm_template_user.username)
       #expect_web_hook_event_name_to_be("chat_message_edited")
       # expect_web_hook_event_category_to_be(category)
