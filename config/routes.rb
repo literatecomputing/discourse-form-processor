@@ -4,9 +4,7 @@ DiscourseForms::Engine.routes.draw do
   post "/submit/:id" => "forms#create"
   get "/submit/:id" => "forms#show"
   get "/submit" => "forms#index"
-  post "/forms/submit/:id" => "forms#create"
-  get "/forms/submit/:id" => "forms#show"
-
+  get "/list" => "forms#index"
   # define routes here
 end
 
