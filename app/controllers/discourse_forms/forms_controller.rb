@@ -54,7 +54,9 @@ module DiscourseForms
       elsif can_send
         template = title_template + " " + p.raw
         allow_list = template.scan(/<%= (.*?) %>/).flatten.map(&:to_sym)
-        allow_list = allow_list + %i[success_url failure_url pm_user id debug_mode formhoster_id formhoster_user]
+        allow_list =
+          allow_list +
+            %i[success_url failure_url pm_user id debug_mode formhoster_id formhoster_user]
         filtered = params.permit(allow_list)
         # add arrays to filtered list
         allow_list.each do |i|
