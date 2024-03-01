@@ -128,7 +128,7 @@ module DiscourseForms
 
       if debug_mode
         return_text =
-          "DEBUG MODE! Form Accepted\n\nDisable form mode by removing the debug_mode hidden <input>.\n\n"
+          "DEBUG MODE! Form Accepted\n\nDisable debug mode by removing the debug_mode hidden <input>.\n\n"
         return_text += "THERE WAS AN ERROR PROCESSING THIS FORM: #{error}\n\n" if error.length > 0
         return_text +=
           "Debug mode forced because referrer is nil (are you browsing your local filesystem?). \n\n" if referrer.nil?
