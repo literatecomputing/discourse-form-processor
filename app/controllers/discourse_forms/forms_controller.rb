@@ -16,6 +16,8 @@ module DiscourseForms
 
     def create
       deny_reason = ""
+      error = ""
+      raw = ""
       referrer = request.env["HTTP_REFERER"]
       form_user =
         User.find_by_username(params[:formhoster_user]) ||
@@ -25,7 +27,17 @@ module DiscourseForms
       t = Topic.find(tid)
       raise Discourse::InvalidAccess unless tid
       p = Post.find_by(post_number: 1, topic_id: tid)
-      title_match = p.raw.match(Regexp.new("^#{FORM_TITLE_HEADER}:\s?(.*)"))
+      # allow FORM_TITLE_HEADER or #
+      body_template = "p.raw"
+      title_match = ""
+      if p.raw.match(Regexp.new("^#{FORM_TITLE_HEADER}:\s?(.*)"))
+        title_match = p.raw.match(Regexp.new("^#{FORM_TITLE_HEADER}:\s?(.*)"))
+        body_template = p.raw.sub(Regexp.new("^#{FORM_TITLE_HEADER}:\s?(.*)"), "")
+      else
+        title_match = p.raw.match(/^#\s+(.*)/)
+        body_template = p.raw.sub(Regexp.new("^#\s?(.*)"), "")
+      end
+      # use topic title if no title indicated in body of message
       title_template = title_match ? title_match[1] : t.title
       sender = User.find_by_username(SiteSetting.form_processor_pm_sender) || User.find(-1)
       user_guardian = Guardian.new(form_user)
@@ -63,13 +75,14 @@ module DiscourseForms
           filtered = filtered.merge(params.permit(i.to_sym => [])) if params[i].is_a? Array
         end
         email = params["email"] || form_user.email
-        name = params["name"] # TODO: add name to the email address in the mailto:
+        name = params["name"] || "not provided" # TODO: add name to the email address in the mailto:
         success_url = params["success_url"]
         failure_url = params["failure_url"]
-        debug_mode = params["debug_mode"]
+        ## If this is served from a file and not a server, force debug mode
+        debug_mode = params["debug_mode"] || referrer.nil?
         begin
           title = ERB.new(title_template).result_with_hash(filtered)
-          body_template = p.raw.gsub(Regexp.new("#{FORM_TITLE_HEADER}:.*"), "")
+          puts "setting raw to #{body_template}"
           raw = ERB.new(body_template).result_with_hash(filtered)
           reply_to_header =
             (
@@ -106,6 +119,7 @@ module DiscourseForms
           end
         rescue => e
           Rails.logger.error("Failed to render title or raw: #{e}")
+          error = "Failed to render title or raw: #{e}"
         end
       end
       # filtered = filtered.merge(params.permit("hosting_service".to_sym => []))
@@ -113,7 +127,14 @@ module DiscourseForms
       # .permit("favorite_pet".to_sym => [])
 
       if debug_mode
-        return_text = "DEBUG MODE! Form Accepted\n\n#{title}\n\n#{raw}\n\n#{params}"
+        return_text =
+          "DEBUG MODE! Form Accepted\n\nDisable form mode by removing the debug_mode hidden <input>.\n\n"
+        return_text += "THERE WAS AN ERROR PROCESSING THIS FORM: #{error}\n\n" if error.length > 0
+        return_text +=
+          "Debug mode forced because referrer is nil (are you browsing your local filesystem?). \n\n" if referrer.nil?
+        return_text += "Message title: #{title}\n\n#{"-" * 60}\n"
+        return_text += "#{raw}#{"-" * 60}\n\n"
+        return_text += "Form Parameters: #{params}"
       elsif new_post && can_send
         return_text = "OK"
         return_text += " #{params}" if SiteSetting.form_procesor_debug_mode

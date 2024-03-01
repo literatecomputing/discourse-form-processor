@@ -39,8 +39,7 @@ after_initialize do
   end
 
   add_to_class(:user, :allowed_referrer?) do |referrer|
-    puts "user checking allowed referrer #{referrer}"
-    self.allowed_referrers && self.allowed_referrers.include?(referrer)
+    referrer.nil? || self.allowed_referrers && self.allowed_referrers.include?(referrer)
   end
   add_to_class(:user, :forms_processed) do
     UserCustomField.where(user_id: self.id).where("name like 'submitted_form%'").count
@@ -184,7 +183,7 @@ after_initialize do
       if t.custom_fields["form_data"]
         puts "GOT ata"
         form_data = JSON.parse(t.custom_fields["form_data"])
-        username = form_data["pm_user"] if form_data
+        username = form_data["formhoster_user"] || form_data["pm_user"] if form_data
         u = User.find_by_username(username) if username
         if u
           puts "------>>>>>got user!!!! with #{form_data}"
