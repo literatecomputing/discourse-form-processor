@@ -3,14 +3,13 @@ en:
     admin:
       site_settings:
         categories:
-          PLUGIN_NAME: "Discourse Form Processor"
-
+          form_processor: "Form Processor"
   js:
     discourse_form_processor:
       placeholder: placeholder
       allowed_referrers: "Allowed referrers"
       missing_referrers_pre_link: 'Welcome! To use FormHoster forms on your site, set "allowed referrers" on'
-      missing_referrers_post_link: ''
+      missing_referrers_post_link: '(If you set that already you may need to reload this page.)'
       allowed_referrers_description: "Pipe-delimited list of URLs that can submit forms to you"
       visit_template_topic: "See Form Response Template"
       copy_template: "Copy form code"
