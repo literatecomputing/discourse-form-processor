@@ -9,12 +9,15 @@ For more information, please see: **url to meta topic**
 - DONE make better sense of what debug mode should look like -- maybe don't send PM except to self?
 - DONE see that there is a reason for every failure
 - DONE add title to debugging template
+- DONE make a # be the title indicator instead of the stupid thing
+- limit success_url to allowed redirects?
+- are submitted forms not getting tagged? (spec?) MUST ALLOW USERS TO SEE THOSE TAGS. 
 - 1 instead of direct redirect, push an HTML page with branding that redirects after 5-10 seconds
 - 1 make a way to pay with 30 day free triall
-- 2 make it easier to find forms and data
+- DONE make it easier to find forms and data -- added "See Submitted Forms" to nav menu pointing to tagged PMs!
 - 2 do sometihng about spam processing
-- 2 change pm_user to something like formhoster_user. Also, consider using userid instead of username?
-- 2 consider: add an endpoint at something like `https://getform.io/f/mbkyQrez` that allows "all" variables.
+- ADD SPEC: change pm_user to something like formhoster_user. Also, consider using userid instead of username?
+- 2 consider: do something like `https://getform.io/f/mbkyQrez` and allow "all" variables and just report all data
 - 2 add honeypot like `<input type="hidden" name="_gotcha" style="display:none !important">`. 
 - 2 get honeypot ideas from https://blog.stefanolaru.com/how-to-make-the-honeypot-field-more-effective
 - 2 don't let them copy code if they aren't in the group
