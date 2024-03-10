@@ -33,7 +33,7 @@ export default class FormSubmissionLink extends Component {
     form += '\n<div class="formhoster-form">';
     form += `\n<form action="${window.location.origin}/forms/submit/${this.id}" method="POST">`;
     form += `\n<input type="hidden" name="success_url" id="_success_url" value="${window.location.origin}/pub/success">`;
-    form += `\n<input type="hidden" name="pm_user" id="pm_user" value="${this.currentUser.username}">`;
+    form += `\n<input type="hidden" name="formhoster_user" id="formhoster_user" value="${this.currentUser.username}">`;
     form += `\n<input type="hidden" name="debug_mode" id="debug_mode" value=True>`;
 
     for (const field of this.formFields) {
