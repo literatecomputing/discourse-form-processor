@@ -6,11 +6,13 @@ For more information, please see: **url to meta topic**
 
 ## TODO
 
+- ALLOW MISSING DATA!!!
 - DONE make better sense of what debug mode should look like -- maybe don't send PM except to self?
 - DONE see that there is a reason for every failure
 - DONE add title to debugging template
 - DONE make a # be the title indicator instead of the stupid thing
 - limit success_url to allowed redirects?
+- handle file uploads (mostly done in comments)
 - are submitted forms not getting tagged? (spec?) MUST ALLOW USERS TO SEE THOSE TAGS. 
 - 1 instead of direct redirect, push an HTML page with branding that redirects after 5-10 seconds
 - 1 make a way to pay with 30 day free triall
