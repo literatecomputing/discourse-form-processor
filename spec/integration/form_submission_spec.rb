@@ -98,60 +98,59 @@ RSpec.describe "Form submission" do
       # expect_web_hook_event_category_to_be(category)
     end
 
+    describe "form post" do
+      it "allows a member of the template group to submit a form with missing data" do
+        puts "---------------------> doing missing"
+        referer_url = "https://mysite.com/contact-form"
+        template_user.allowed_referrers = referer_url
+        post "/forms/submit/#{template_topic.id}",
+             headers: {
+               "HTTP_REFERER" => referer_url,
+             },
+             params: {
+               success_url: "https://somewhere.com/success",
+               pm_user: template_user.username,
+               hostname: "discourse.person.com",
+               name: "Pat Person",
+               email: "pat@person.com",
+               message: "",
+               controller: "discourse_forms/forms",
+               action: "create",
+             }
+        expect_response_to_be_successful_redirect
+        expect_topic_to_be_created(template_user.username)
+        #expect_web_hook_event_name_to_be("chat_message_edited")
+        # expect_web_hook_event_category_to_be(category)
+      end
+    end
 
-  describe "form post" do
-    it "allows a member of the template group to submit a form with missing data" do
-      puts "---------------------> doing missing"
-      referer_url = "https://mysite.com/contact-form"
-      template_user.allowed_referrers = referer_url
-      post "/forms/submit/#{template_topic.id}",
-           headers: {
-             "HTTP_REFERER" => referer_url,
-           },
-           params: {
-             success_url: "https://somewhere.com/success",
-             pm_user: template_user.username,
-             hostname: "discourse.person.com",
-             name: "Pat Person",
-             email: "pat@person.com",
-             message:"",
-             controller: "discourse_forms/forms",
-             action: "create",
-           }
-      expect_response_to_be_successful_redirect
-      expect_topic_to_be_created(template_user.username)
-      #expect_web_hook_event_name_to_be("chat_message_edited")
-      # expect_web_hook_event_category_to_be(category)
-    end    
-  end
+    describe "form post" do
+      it "allows a member of the template group to submit a form with an empty field" do
+        puts "---------------------> doing empty"
+        referer_url = "https://mysite.com/contact-form"
+        template_user.allowed_referrers = referer_url
+        post "/forms/submit/#{template_topic.id}",
+             headers: {
+               "HTTP_REFERER" => referer_url,
+             },
+             params: {
+               success_url: "https://somewhere.com/success",
+               pm_user: template_user.username,
+               hostname: "discourse.person.com",
+               name: "",
+               email: "pat@person.com",
+               message: "",
+               controller: "discourse_forms/forms",
+               action: "create",
+             }
+        expect_response_to_be_successful_redirect
+        expect_topic_to_be_created(template_user.username)
+        #expect_web_hook_event_name_to_be("chat_message_edited")
+        # expect_web_hook_event_category_to_be(category)
+      end
+    end
 
-  describe "form post" do
-    it "allows a member of the template group to submit a form with an empty field" do
-      puts "---------------------> doing empty"
-      referer_url = "https://mysite.com/contact-form"
-      template_user.allowed_referrers = referer_url
-      post "/forms/submit/#{template_topic.id}",
-           headers: {
-             "HTTP_REFERER" => referer_url,
-           },
-           params: {
-             success_url: "https://somewhere.com/success",
-             pm_user: template_user.username,
-             hostname: "discourse.person.com",
-             name: "",
-             email: "pat@person.com",
-             message: "",
-             controller: "discourse_forms/forms",
-             action: "create",
-           }
-      expect_response_to_be_successful_redirect
-      expect_topic_to_be_created(template_user.username)
-      #expect_web_hook_event_name_to_be("chat_message_edited")
-      # expect_web_hook_event_category_to_be(category)
-    end 
-  end
-    
-  it "allows a member of the template group to submit a form in debug mode" do
+    it "allows a member of the template group to submit a form in debug mode" do
       referer_url = "https://mysite.com/contact-form"
       template_user.allowed_referrers = referer_url
       post "/forms/submit/#{template_topic.id}",
