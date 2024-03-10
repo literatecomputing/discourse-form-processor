@@ -70,6 +70,20 @@ module DiscourseForms
           allow_list +
             %i[success_url failure_url pm_user id debug_mode formhoster_id formhoster_user]
         filtered = params.permit(allow_list)
+        # TODO: if param matches "file" . . .
+        # See https://github.com/discourse/discourse/blob/main/app/controllers/uploads_controller.rb#L24
+        # uploaded_file = params['file'] # or wahtever the file param is
+        # uploaded_file.tempfile has filename
+        # something like
+
+        # opts = {
+        # type: uploaded_file.content_type,
+        # for_private_message: true,
+        # }
+        # not sure if uplaoded_file has the stuff or need to do file = File.new(uploaded_file.tempfile )
+        # upload = UploadCreator.new(uploaded_file, uploaded_file.original_filename, opts).create_for(form_user.id)
+        # markdown_for_uploaded_file = UploadMarkdown.new(upload).to_markdown(display_name: upload.original_filename)
+
         # add arrays to filtered list
         allow_list.each do |i|
           filtered = filtered.merge(params.permit(i.to_sym => [])) if params[i].is_a? Array
