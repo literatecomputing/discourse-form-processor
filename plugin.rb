@@ -3,7 +3,7 @@
 # name: discourse-form-processor
 # about: Process arbitrary forms
 # meta_topic_id: TODO
-# version: 2026.11.11.03
+# version: 2026.11.11.04
 # authors: pfaffman
 # url: https://github.com/literatecomputing/discourse-form-processor
 # required_version: 2.7.0
@@ -15,7 +15,6 @@ module ::DiscourseForms
   PLUGIN_NAME = "discourse-form-processor"
   FORM_TITLE_HEADER = "NOTIFICATION_MESSAGE_TITLE"
   ALLOWED_REFERRER_CUSTOM_FIELD = "allowed_referrers"
-  SUBMITTED_FORM_CUSTOM_FIELD = "submitted_form"
 end
 
 require_relative "lib/form_module/engine"
@@ -31,7 +30,6 @@ after_initialize do
   # TODO: move allowed referrers to a user custom field
   register_editable_user_custom_field(DiscourseForms::ALLOWED_REFERRER_CUSTOM_FIELD)
   register_user_custom_field_type(DiscourseForms::ALLOWED_REFERRER_CUSTOM_FIELD, :text)
-  register_user_custom_field_type(DiscourseForms::SUBMITTED_FORM_CUSTOM_FIELD, :json)
   add_to_class(:user, :allowed_referrers) { self.custom_fields["allowed_referrers"] }
   add_to_class(:user, :allowed_referrers=) do |referrers|
     self.custom_fields["allowed_referrers"] = referrers
@@ -41,19 +39,19 @@ after_initialize do
   add_to_class(:user, :allowed_referrer?) do |referrer|
     referrer.nil? || self.allowed_referrers && self.allowed_referrers.include?(referrer)
   end
-  add_to_class(:user, :forms_processed) do
-    UserCustomField.where(user_id: self.id).where("name like 'submitted_form%'").count
+  # Submissions are counted from the PMs they create (each has a form_data topic custom
+  # field), not stored per-submission on the user: users are capped at 100 custom fields.
+  add_to_class(:user, :form_submission_topics) do
+    Topic
+      .private_messages
+      .joins(:topic_allowed_users)
+      .where(topic_allowed_users: { user_id: self.id })
+      .where(id: TopicCustomField.where(name: "form_data").select(:topic_id))
   end
-  add_to_serializer(:current_user, :forms_processed) do
-    puts "------------------->  wstf #{object.forms_processed}"
-    object.forms_processed
-  end
+  add_to_class(:user, :forms_processed) { form_submission_topics.count }
+  add_to_serializer(:current_user, :forms_processed) { object.forms_processed }
   add_to_class(:user, :forms_processed_this_month) do
-    UserCustomField
-      .where(user_id: self.id)
-      .where("name like 'submitted_form%'")
-      .where(created_at: Date.today.all_month)
-      .count
+    form_submission_topics.where(created_at: Date.today.all_month).count
   end
   add_to_class(:user, :forms_results) do
     tq = TopicQuery.new(self).list_private_messages(self)
@@ -64,30 +62,14 @@ after_initialize do
   add_to_serializer(:current_user, :forms_processed_this_month) do
     object.forms_processed_this_month
   end
-  add_to_class(:user, :forms_array) do
-    UserCustomField
-      .where(user_id: self.id)
-      .where("name like 'submitted_form%'")
-      .pluck(:value)
-      .map { |item| JSON.parse(item) }
-  end
   add_to_class(:user, :github_username) do
     if uac = UserAssociatedAccount.find_by(user_id: self.id, provider_name: "github")
       uac.info["nickname"]
     end
   end
   add_to_serializer(:current_user, :github_username) { object.github_username }
-  add_to_class(:user, :forms_this_month_array) do
-    UserCustomField
-      .where(user_id: self.id)
-      .where("name like 'submitted_form%'")
-      .where(created_at: Date.today.all_month)
-      .pluck(:value)
-      .map { |item| JSON.parse(item) }
-  end
 
   add_to_class(:guardian, :allowed_referrer?) do |referrer|
-    puts "checking if #{referrer} is allowed referrer #{current_user.allowed_referrers} (#{current_user.allowed_referrer?(referrer)})"
     current_user.allowed_referrer?(referrer)
   end
 
@@ -102,40 +84,25 @@ after_initialize do
             .map(&:to_i)
             .include?(t.category_id)
         )
-      puts "SS: #{
-             SiteSetting
-               .form_processor_allowed_categories
-               .split("|")
-               .map(&:to_i)
-               .include?(t.category_id)
-           }"
     end
     ok ||= (t.tags.pluck(:name) & SiteSetting.form_processor_allowed_tags.split("|")).length > 0
     ok
   end
 
   add_to_class(:guardian, :can_use_forms?) do |form_user|
-    puts "My groups: #{form_user.groups.pluck(:id)}. Allowed: #{SiteSetting.form_processor_allowed_groups.split("|").map(&:to_i)}"
-    puts "The stuff #{(form_user.groups.pluck(:id) & SiteSetting.form_processor_allowed_groups.split("|").map(&:to_i)).length}"
     num_groups =
       (
         form_user.groups.pluck(:id) &
           SiteSetting.form_processor_allowed_groups.split("|").map(&:to_i)
       ).length
-    puts "Number groups: #{num_groups}."
-    puts "can use forms? #{num_groups > 0}"
     num_groups > 0
   end
   add_to_class(:guardian, :can_use_pm_forms?) do |form_user|
-    puts "My groups: #{form_user.groups.pluck(:id)}. Allowed: #{SiteSetting.form_processor_pm_allowed_groups.split("|").map(&:to_i)}"
-    puts "The stuff #{(form_user.groups.pluck(:id) & SiteSetting.form_processor_pm_allowed_groups.split("|").map(&:to_i)).length}"
     num_groups =
       (
         form_user.groups.pluck(:id) &
           SiteSetting.form_processor_pm_allowed_groups.split("|").map(&:to_i)
       ).length
-    puts "Number groups: #{num_groups}."
-    puts "can use forms? #{num_groups > 0}"
     num_groups > 0
   end
   add_to_class(:topic, :form_data) { JSON.parse(self.custom_fields["form_data"]) }
@@ -150,13 +117,7 @@ after_initialize do
     end
   end
 
-  add_to_serializer(:current_user, :form_allowed_referrers) do
-    puts "Getting stuff"
-    puts "#{object.username}"
-    puts "#{object.allowed_referrers}"
-
-    object.allowed_referrers
-  end
+  add_to_serializer(:current_user, :form_allowed_referrers) { object.allowed_referrers }
   add_to_serializer(:topic_view, :is_template_topic) do
     guardian = Guardian.new(scope.current_user)
     guardian.is_template_topic?(object.topic)
@@ -175,40 +136,4 @@ after_initialize do
       template.scan(/<%= (.*?) %>/).flatten.uniq.map(&:to_sym)
     end
   end
-  add_model_callback(Topic, :after_create) do
-    # if it's a PM and has a form attached, create a user_custom_field
-    puts "creating a topic. adding a thing"
-    t = self
-    if t.archetype == "private_message"
-      if t.custom_fields["form_data"]
-        puts "GOT ata"
-        form_data = JSON.parse(t.custom_fields["form_data"])
-        username = form_data["formhoster_user"] || form_data["pm_user"] if form_data
-        u = User.find_by_username(username) if username
-        if u
-          puts "------>>>>>got user!!!! with #{form_data}"
-          template_id = form_data["id"]
-          puts "-------------------------->>> template #{template_id}"
-          begin
-            json_load = {
-              user_id: u.id,
-              topic_id: t.id,
-              template_id: template_id,
-              created_at: Time.now,
-            }.to_json
-            puts "going to save #{json_load}"
-            u.custom_fields["#{DiscourseForms::SUBMITTED_FORM_CUSTOM_FIELD}_#{t.id}"] = json_load
-            puts "---------------------------> going to save #{u.custom_fields}"
-            u.save
-          rescue => e
-            puts "can't save usercustom fields because #{e}"
-          end
-        end
-      end
-    end
-    puts "done with after create topic callback"
-  end
-  # add_to_serializer(:topic, :form_template) do
-  #   object.custom_fields['']
-  # end
 end
