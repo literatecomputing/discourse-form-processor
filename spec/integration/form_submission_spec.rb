@@ -98,7 +98,7 @@ RSpec.describe "Form submission" do
       # expect_web_hook_event_category_to_be(category)
     end
 
-    describe "form post" do
+    describe "form post with missing data" do
       it "allows a member of the template group to submit a form with missing data" do
         puts "---------------------> doing missing"
         referer_url = "https://mysite.com/contact-form"
@@ -124,7 +124,7 @@ RSpec.describe "Form submission" do
       end
     end
 
-    describe "form post" do
+    describe "form post with an empty field" do
       it "allows a member of the template group to submit a form with an empty field" do
         puts "---------------------> doing empty"
         referer_url = "https://mysite.com/contact-form"
