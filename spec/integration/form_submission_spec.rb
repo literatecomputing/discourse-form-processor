@@ -99,6 +99,35 @@ RSpec.describe "Form submission" do
       # expect_web_hook_event_category_to_be(category)
     end
 
+    it "counts submissions from the PMs without adding user custom fields" do
+      referer_url = "https://mysite.com/contact-form"
+      template_user.allowed_referrers = referer_url
+      submit =
+        lambda do
+          post "/forms/submit/#{template_topic.id}",
+               headers: {
+                 "HTTP_REFERER" => referer_url,
+               },
+               params: {
+                 success_url: "https://somewhere.com/success",
+                 pm_user: template_user.username,
+                 name: "Pat Person",
+                 email: "pat@person.com",
+                 message: "hello",
+               }
+        end
+
+      expect { 2.times { submit.call } }.not_to change {
+        UserCustomField.where(user_id: template_user.id).count
+      }
+      expect(template_user.forms_processed).to eq(2)
+      expect(template_user.forms_processed_this_month).to eq(2)
+
+      Topic.last.update!(created_at: 2.months.ago)
+      expect(template_user.forms_processed).to eq(2)
+      expect(template_user.forms_processed_this_month).to eq(1)
+    end
+
     describe "form post with missing data" do
       it "allows a member of the template group to submit a form with missing data" do
         puts "---------------------> doing missing"
