@@ -1,17 +1,18 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
-import { inject as service } from "@ember/service";
+import { service } from "@ember/service";
 import { ajax } from "discourse/lib/ajax";
+import discourseDebounce from "discourse/lib/debounce";
 // import { clipboardCopy } from "discourse/lib/utilities";
 import User from "discourse/models/user";
-import discourseDebounce from "discourse-common/lib/debounce";
 
 export default class FormSubmissionLink extends Component {
   // }
   @service composer;
 
   @tracked copyConfirm = false;
+
   constructor() {
     super(...arguments);
     this.id = this.args.id || 0;
@@ -20,6 +21,14 @@ export default class FormSubmissionLink extends Component {
     this.currentUser = User.current();
   }
 
+  get formSubmissionText() {
+    let formText = this.formTextCode();
+    return formText;
+  }
+
+  get siteUrl() {
+    return window.location.origin;
+  }
   //   static shouldRender(outletArgs, helper) {
   //   return outletArgs.model.is_template && helper.currentUser?.can_create_topic;
 
@@ -66,14 +75,6 @@ export default class FormSubmissionLink extends Component {
     return form;
   }
 
-  get formSubmissionText() {
-    let formText = this.formTextCode();
-    return formText;
-  }
-  get siteUrl() {
-    return window.location.origin;
-  }
-
   async fetchRaw() {
     return await ajax(`/raw/${this.topic.id}/1`, { dataType: "text" });
   }
@@ -96,6 +97,7 @@ export default class FormSubmissionLink extends Component {
     this.copyConfirm = true;
     discourseDebounce(this.resetCopyButton, 2000);
   }
+
   @action
   resetCopyButton() {
     this.copyConfirm = false;

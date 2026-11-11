@@ -45,24 +45,24 @@ module DiscourseForms
       if !user_guardian.can_see?(t)
         can_send = false
         deny_reason = "#{form_user.username} cannot read topic #{tid}"
-        return render json: failed_json.merge(errors: deny_reason), status: 403
+        return render json: failed_json.merge(errors: deny_reason), status: :forbidden
       elsif (t.archetype == Archetype.private_message) &&
             !user_guardian.can_use_pm_forms?(form_user)
         can_send = false
         deny_reason = "PM Forms not allowed. Upgrade your plan."
-        return render json: failed_json.merge(errors: deny_reason), status: 403
+        return render json: failed_json.merge(errors: deny_reason), status: :forbidden
       elsif !user_guardian.allowed_referrer?(referrer)
         deny_reason += "#{referrer} not in #{form_user.allowed_referrers}"
         can_send = false
-        return render json: failed_json.merge(errors: deny_reason), status: 403
+        return render json: failed_json.merge(errors: deny_reason), status: :forbidden
       elsif !user_guardian.can_use_forms?(form_user)
         can_send = false
         deny_reason = "Not allowed to use forms. Has your subscription has expired?"
-        return render json: failed_json.merge(errors: deny_reason), status: 403
+        return render json: failed_json.merge(errors: deny_reason), status: :forbidden
       elsif !user_guardian.is_template_topic?(t)
         can_send = false
         deny_reason = "#{t.id} is not a form template"
-        return render json: failed_json.merge(errors: deny_reason), status: 403
+        return render json: failed_json.merge(errors: deny_reason), status: :forbidden
       elsif can_send
         template = title_template + " " + p.raw
         allow_list = template.scan(/<%= (.*?) %>/).flatten.map(&:to_sym)
