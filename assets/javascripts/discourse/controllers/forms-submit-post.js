@@ -1,7 +1,6 @@
 import Controller from "@ember/controller";
-// import discourseComputed from "discourse-common/utils/decorators";
-import { inject } from "@ember/service";
+import { service } from "@ember/service";
 
-export default Controller.extend({
-  router: inject(),
-});
+export default class FormsSubmitPostController extends Controller {
+  @service router;
+}

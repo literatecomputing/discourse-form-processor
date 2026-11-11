@@ -3,7 +3,7 @@
 # name: discourse-form-processor
 # about: Process arbitrary forms
 # meta_topic_id: TODO
-# version: 2026.11.11.01
+# version: 2026.11.11.02
 # authors: pfaffman
 # url: https://github.com/literatecomputing/discourse-form-processor
 # required_version: 2.7.0
