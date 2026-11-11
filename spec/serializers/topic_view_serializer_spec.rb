@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "rails_helper"
-
 describe TopicViewSerializer do
   let(:user) { Fabricate(:user) }
   let(:admin) { Fabricate(:admin) }
@@ -41,6 +39,7 @@ describe TopicViewSerializer do
   let(:not_template_topic_view) { TopicView.new(not_template_topic, template_user) }
   let(:template_guardian) { Guardian.new(template_user) }
   let(:guardian) { Guardian.new(user) }
+
   fab!(:tag)
   raw_template = <<~RAW
     Name: <%= name %>

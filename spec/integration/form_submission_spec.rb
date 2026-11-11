@@ -1,18 +1,19 @@
 # frozen_string_literal: true
 
 RSpec.describe "Form submission" do
-  fab!(:pm_template_group) { Fabricate(:group) }
-  fab!(:template_category) { Fabricate(:category) }
-  fab!(:user) { Fabricate(:user) }
-  fab!(:template_group) { Fabricate(:group) }
+  fab!(:pm_template_group, :group)
+  fab!(:template_category, :category)
+  fab!(:user)
+  fab!(:template_group, :group)
   fab!(:template_user) { Fabricate(:user, groups: [template_group]) }
   fab!(:pm_template_user) { Fabricate(:user, trust_level: 3) }
   let(:admin) { Fabricate(:admin) }
   let(:category) { Fabricate(:category) }
   let(:bad_category) { Fabricate(:category) }
-  fab!(:tag) { Fabricate(:tag) }
+  fab!(:tag)
   fab!(:template_topic) { Fabricate(:topic, category: template_category) }
   let(:topic_view) { TopicView.new(template_topic, template_user) }
+
   fab!(:pm_template_user) do
     Fabricate(:user, username: "pm_template_dude", groups: [template_group, pm_template_group])
   end

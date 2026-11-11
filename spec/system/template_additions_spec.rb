@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe "Topic page form elements", type: :system, mobile: true do
+RSpec.describe "Topic page form elements", mobile: true do
   let(:user) { Fabricate(:user) }
   let(:admin) { Fabricate(:admin) }
   let(:template_group) { Fabricate(:group) }
@@ -27,6 +27,7 @@ RSpec.describe "Topic page form elements", type: :system, mobile: true do
     let(:not_template_topic_view) { TopicView.new(not_template_topic, template_user) }
     let(:template_guardian) { Guardian.new(template_user) }
     let(:guardian) { Guardian.new(user) }
+
     fab!(:tag)
 
     it "shows form if there are form_fields" do
@@ -68,6 +69,7 @@ RSpec.describe "Topic page form elements", type: :system, mobile: true do
       expect(page).to have_no_css(".html-example")
       expect(page).to have_no_css(".form-html")
     end
+
     it "complains on template topic when there are no allowed referers" do
       SiteSetting.form_processor_allowed_groups = template_group.id
       SiteSetting.form_processor_pm_allowed_groups = pm_template_group.id.to_s
@@ -78,6 +80,7 @@ RSpec.describe "Topic page form elements", type: :system, mobile: true do
       visit("/t/-/#{template_topic.id}")
       expect(page).to have_css(".missing-referrers")
     end
+
     it "shows allowed referers on template topic when they exist" do
       SiteSetting.form_processor_allowed_groups = template_group.id
       SiteSetting.form_processor_pm_allowed_groups = pm_template_group.id.to_s
