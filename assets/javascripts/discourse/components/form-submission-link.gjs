@@ -6,6 +6,9 @@ import { ajax } from "discourse/lib/ajax";
 import discourseDebounce from "discourse/lib/debounce";
 // import { clipboardCopy } from "discourse/lib/utilities";
 import User from "discourse/models/user";
+import DButton from "discourse/ui-kit/d-button";
+import dConcatClass from "discourse/ui-kit/helpers/d-concat-class";
+import { i18n } from "discourse-i18n";
 
 export default class FormSubmissionLink extends Component {
   // }
@@ -102,4 +105,39 @@ export default class FormSubmissionLink extends Component {
   resetCopyButton() {
     this.copyConfirm = false;
   }
+
+  <template>
+    {{#if this.formFields}}
+      {{#if this.currentUser}}
+        <div class="html-example alert-info">
+          <details>
+            <summary>{{i18n "discourse_form_processor.view_template"}}</summary>
+            <pre class="form-html">
+              {{this.formSubmissionText}}
+            </pre>
+          </details>
+        </div>
+        <DButton
+          class={{dConcatClass
+            "btn-default"
+            "template-copy"
+            (if this.copyConfirm "ok")
+          }}
+          @action={{this.copy}}
+          @icon={{if this.copyConfirm "check" "copy"}}
+          @label="discourse_form_processor.copy_template"
+        />
+        <DButton
+          class="template-new-topic"
+          @action={{this.createNewTopic}}
+          @icon="plus"
+          @label="discourse_form_processor.create_template_pm"
+          @translatedTitle={{i18n
+            "discourse_form_processor.create_template_title"
+            tag=this.topic.form_pm_tag
+          }}
+        />
+      {{/if}}
+    {{/if}}
+  </template>
 }
